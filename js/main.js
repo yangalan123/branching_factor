@@ -103,14 +103,6 @@ function initFigureSelectors() {
                 min-width: 200px;
             `;
             
-            // Add default "Select a figure" option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = '-- Select a figure --';
-            defaultOption.disabled = true;
-            defaultOption.selected = true;
-            select.appendChild(defaultOption);
-            
             // Add options for each figure
             figures.forEach((figure, index) => {
                 const option = document.createElement('option');
@@ -121,19 +113,12 @@ function initFigureSelectors() {
             
             // Add change event listener
             select.addEventListener('change', function() {
-                const selectedIndex = this.value;
+                const selectedIndex = parseInt(this.value);
                 
-                if (selectedIndex === '') {
-                    // Hide all figures if no selection
-                    figures.forEach(fig => {
-                        fig.style.display = 'none';
-                    });
-                } else {
-                    // Show only the selected figure
-                    figures.forEach((fig, idx) => {
-                        fig.style.display = idx === parseInt(selectedIndex) ? 'block' : 'none';
-                    });
-                }
+                // Show only the selected figure
+                figures.forEach((fig, idx) => {
+                    fig.style.display = idx === selectedIndex ? 'block' : 'none';
+                });
             });
             
             // Assemble selector
@@ -143,9 +128,9 @@ function initFigureSelectors() {
             // Insert selector before the figure group
             group.parentNode.insertBefore(selectorContainer, group);
             
-            // Hide all figures initially
-            figures.forEach(fig => {
-                fig.style.display = 'none';
+            // Show first figure, hide others initially
+            figures.forEach((fig, index) => {
+                fig.style.display = index === 0 ? 'block' : 'none';
             });
         }
     });
@@ -331,6 +316,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize citations
     initCitations();
+
+    // Initialize collapsible sections
+    initializeCollapsibleSections();
+    
+    // Add section controls
+    addSectionControls();
 });
 
 // Function to render standalone PDFs (not in carousels)
@@ -812,4 +803,175 @@ function formatBibliographyEntry(citation) {
     }
     
     return entry;
+}
+
+// Collapsible sections functionality
+function initializeCollapsibleSections() {
+    const collapsibleSections = document.querySelectorAll('.collapsible-section');
+    
+    collapsibleSections.forEach(section => {
+        const header = section.querySelector('.collapsible-header');
+        const content = section.querySelector('.collapsible-content');
+        const toggle = section.querySelector('.collapsible-toggle');
+        
+        if (header && content) {
+            // Add click event to header
+            header.addEventListener('click', function(e) {
+                if (e.target !== toggle) {
+                    toggleSection(section);
+                }
+            });
+            
+            // Add click event to toggle button
+            if (toggle) {
+                toggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleSection(section);
+                });
+            }
+        }
+    });
+}
+
+function toggleSection(section) {
+    const content = section.querySelector('.collapsible-content');
+    const toggle = section.querySelector('.collapsible-toggle');
+    const isCollapsed = content.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+        // Expand section
+        content.classList.remove('collapsed');
+        if (toggle) toggle.classList.remove('collapsed');
+        section.setAttribute('data-collapsed', 'false');
+    } else {
+        // Collapse section
+        content.classList.add('collapsed');
+        if (toggle) toggle.classList.add('collapsed');
+        section.setAttribute('data-collapsed', 'true');
+    }
+    
+    // Save state to localStorage
+    saveSectionStates();
+}
+
+function addSectionControls() {
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'section-controls';
+    controlsDiv.innerHTML = `
+        <h4>Section Controls</h4>
+        <button class="section-toggle" data-action="expand-all">Expand All</button>
+        <button class="section-toggle" data-action="collapse-all">Collapse All</button>
+        <hr style="margin: 0.5em 0; border: none; border-top: 1px solid #ddd;">
+    `;
+    
+    // Add individual section toggles
+    const sections = document.querySelectorAll('.collapsible-section');
+    sections.forEach(section => {
+        const title = section.querySelector('.collapsible-header h2')?.textContent || 'Section';
+        const sectionId = section.id || 'section-' + Math.random().toString(36).substr(2, 9);
+        
+        const button = document.createElement('button');
+        button.className = 'section-toggle';
+        button.textContent = title;
+        button.setAttribute('data-section-id', sectionId);
+        button.addEventListener('click', function() {
+            toggleSection(section);
+            updateToggleButtonStates();
+        });
+        
+        controlsDiv.appendChild(button);
+    });
+    
+    // Add event listeners for expand/collapse all
+    controlsDiv.querySelector('[data-action="expand-all"]').addEventListener('click', expandAllSections);
+    controlsDiv.querySelector('[data-action="collapse-all"]').addEventListener('click', collapseAllSections);
+    
+    // Insert controls after the header
+    const headerContainer = document.querySelector('.header-container');
+    if (headerContainer) {
+        headerContainer.parentNode.insertBefore(controlsDiv, headerContainer.nextSibling);
+    }
+    
+    // Load saved states and update button states
+    loadSectionStates();
+    updateToggleButtonStates();
+}
+
+function expandAllSections() {
+    const sections = document.querySelectorAll('.collapsible-section');
+    sections.forEach(section => {
+        const content = section.querySelector('.collapsible-content');
+        const toggle = section.querySelector('.collapsible-toggle');
+        
+        content.classList.remove('collapsed');
+        if (toggle) toggle.classList.remove('collapsed');
+        section.setAttribute('data-collapsed', 'false');
+    });
+    saveSectionStates();
+    updateToggleButtonStates();
+}
+
+function collapseAllSections() {
+    const sections = document.querySelectorAll('.collapsible-section');
+    sections.forEach(section => {
+        const content = section.querySelector('.collapsible-content');
+        const toggle = section.querySelector('.collapsible-toggle');
+        
+        content.classList.add('collapsed');
+        if (toggle) toggle.classList.add('collapsed');
+        section.setAttribute('data-collapsed', 'true');
+    });
+    saveSectionStates();
+    updateToggleButtonStates();
+}
+
+function updateToggleButtonStates() {
+    const sections = document.querySelectorAll('.collapsible-section');
+    const toggleButtons = document.querySelectorAll('.section-toggle[data-section-id]');
+    
+    toggleButtons.forEach(button => {
+        const sectionId = button.getAttribute('data-section-id');
+        const section = document.getElementById(sectionId) || 
+                       document.querySelector(`[data-section-id="${sectionId}"]`);
+        
+        if (section) {
+            const isCollapsed = section.getAttribute('data-collapsed') === 'true';
+            button.classList.toggle('active', !isCollapsed);
+        }
+    });
+}
+
+function saveSectionStates() {
+    const sections = document.querySelectorAll('.collapsible-section');
+    const states = {};
+    
+    sections.forEach(section => {
+        const sectionId = section.id || section.getAttribute('data-section-id');
+        if (sectionId) {
+            states[sectionId] = section.getAttribute('data-collapsed') === 'true';
+        }
+    });
+    
+    localStorage.setItem('sectionStates', JSON.stringify(states));
+}
+
+function loadSectionStates() {
+    const savedStates = localStorage.getItem('sectionStates');
+    if (savedStates) {
+        const states = JSON.parse(savedStates);
+        
+        Object.keys(states).forEach(sectionId => {
+            const section = document.getElementById(sectionId) || 
+                           document.querySelector(`[data-section-id="${sectionId}"]`);
+            
+            if (section && states[sectionId]) {
+                const content = section.querySelector('.collapsible-content');
+                const toggle = section.querySelector('.collapsible-toggle');
+                
+                content.classList.add('collapsed');
+                if (toggle) toggle.classList.add('collapsed');
+                section.setAttribute('data-collapsed', 'true');
+            }
+        });
+    }
 }

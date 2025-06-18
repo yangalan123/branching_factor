@@ -23,38 +23,32 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="favicon/png" href="favicon.png">
 
-    <!-- MathJax for better math rendering -->
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true,
-                processEnvironments: true,
-                packages: ['base', 'ams', 'noerrors', 'noundefined']
-            },
-            options: {
-                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-                ignoreHtmlClass: 'tex2jax_ignore',
-                processHtmlClass: 'tex2jax_process'
-            },
-            startup: {
-                pageReady: () => {
-                    return MathJax.startup.defaultPageReady().then(() => {
-                        console.log('MathJax is loaded and ready');
-                    });
-                }
-            }
-        };
+    <!-- MathJax v2 for high-quality math rendering -->
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    
-    <!-- KaTeX for better math rendering -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"
-            onload="renderMathInElement(document.body);"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+                displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            "HTML-CSS": {
+                availableFonts: ["STIX"],
+                linebreaks: { automatic: true },
+                imageFont: null
+            },
+            SVG: {
+                font: "STIX-Web",
+                linebreaks: { automatic: true },
+                imageFont: null
+            },
+            showProcessingMessages: false,
+            messageStyle: "none"
+        });
+    </script>
     
     <!-- PDF.js for PDF rendering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
@@ -101,30 +95,13 @@
         <div class="byline-container">
             <div class="byline-column">
                 <h3>Authors</h3>
-                <p><a href="#" class="author-link">Chenghao Yang</a></p>
-                <p><a href="#" class="author-link">Ari Holtzman</a></p>
-            </div>
-            <div class="byline-column">
-                <h3 style="visibility: hidden">Authors</h3>
-                <p style="visibility: hidden"><a class="author-link">Placeholder</a></p>
-            </div>
-            <div class="byline-column">
-                <h3 style="visibility: hidden">Authors</h3>
-                <p style="visibility: hidden"><a class="author-link">Placeholder</a></p>
+                <p><a href="#" class="author-link">Chenghao Yang</a> and <a href="#" class="author-link">Ari Holtzman</a></p>
             </div>
         </div>
         <div class="byline-container">
             <div class="byline-column">
                 <h3>Affiliations</h3>
                 <p><a href="https://www.uchicago.edu/" class="affiliation-link">University of Chicago</a></p>
-            </div>
-            <div class="byline-column">
-                <h3 style="visibility: hidden">Affiliations</h3>
-                <p style="visibility: hidden"><a class="affiliation-link">Placeholder</a></p>
-            </div>
-            <div class="byline-column">
-                <h3 style="visibility: hidden">Affiliations</h3>
-                <p style="visibility: hidden"><a class="affiliation-link">Placeholder</a></p>
             </div>
         </div>
     </div>
@@ -157,43 +134,48 @@
         </ul>
     </section>
 
-    <section id="introduction">
-        <h2>Introduction</h2>
-        <p>
-            While alignment tuning improves helpfulness and safety in large language models (LLMs), it often introduces a tradeoff: reduced output diversity <d-cite key="padmakumar2024does"></d-cite><d-cite key="chakrabarty2024art"></d-cite><d-cite key="tian2024large"></d-cite><d-cite key="kirk2024understanding"></d-cite><d-cite key="lu2025ai"></d-cite> and increased determinism <d-cite key="saparov2023language"></d-cite><d-cite key="song2024good"></d-cite><d-cite key="renze2024effect"></d-cite><d-cite key="bigelowsubjective"></d-cite><d-cite key="west2025base"></d-cite>. 
-            Our own case study on MMLU <d-cite key="hendrycks2021measuring"></d-cite> confirms that aligned models exhibit reduced variance under Chain-of-Thought (CoT) prompting <d-cite key="wei2022chain"></d-cite>. These findings suggest a potential distributional concentration phenomenon in aligned models -- i.e., a tendency to produce semantically and structurally similar outputs.
-        </p>
-        <p>
-            But how should we conceptualize this concentration? 
-            Autoregressive language generation is inherently a traversal through a <em>branching tree</em>: at each step, the model selects a token and expands the sequence along a specific branch. 
-            This structure, illustrated conceptually in Figure 1, naturally defines a space of possible continuations, independent of specific token identities.
-            To analyze how concentrated this space is during generation, we introduce the Branching Factor (BF) as a local, average-case measure of LLMs' output breadth, offering a microscopic lens on how local branching behavior gives rise to global output concentration.
-        </p>
-        <p>
-            To quantify BF, we leverage perplexity, an information-theoretic proxy for the effective size of a model's output space. 
-            Unlike standard perplexity evaluations that are computed over a dataset using teacher-forcing, our goal is to estimate the perplexity of the model's full output distribution over continuations--i.e., the number of diverse, high-probability sequences it is likely to generate. However, directly computing this quantity is intractable due to the exponential number of possible outputs, especially for long generations. To address this, we leverage the Asymptotic Equipartition Property (AEP) <d-cite key="shannon1948mathematical"></d-cite><d-cite key="mudireddy2024slaves"></d-cite>, which implies that the average log-probability of sufficiently long samples approximates the length-averaged entropy of the underlying distribution. This lets us estimate BF directly from naturally sampled completions, without requiring teacher-forcing or exhaustive enumeration.
-        </p>
-        <p>
-            To see what variables control BF, we investigate how BF varies with output length, model size, prompt complexity, and training paradigms. 
-            Our findings reveal:
-        </p>
-        <ul>
-            <li>BF typically declines over the course of generation, indicating that <em>model output becomes increasingly constrained, and thus more predictable, with each successive token.</em></li>
-            <li>Among various factors, alignment tuning (e.g., RLHF) exerts the strongest and most consistent impact, sharply compressing the branching factor by nearly an order of magnitude (e.g., $12 \rightarrow 1.2$). 
-            This pronounced narrowing <em>offers a quantitative basis for the reduced output variance and decoding sensitivity observed in aligned models</em>, highlighting a key behavioral divergence from their base counterparts.</li>
-        </ul>
-        <p>
-            Is this reduction in BF merely a reflection of concentrated token probabilities, or does it indicate that the model is actively <em>honing in</em> on a narrower target space? To probe this, we conduct resampling experiments, requiring the model to choose an alternative to its top-ranked token at an intermediate generation step. We observe a sharp drop in accuracy, suggesting that aligned models not only concentrate probability mass but also commit to specific generative pathways early in the process. 
-            Building on these theoretical and empirical insights, we also hypothesize and empirically validate that aligned CoT models exhibit particularly low BF and reduced output variability under majority voting. 
-            This stability arises because CoT encourages long reasoning chains, shifting key information to later tokens--precisely where BF tends to be lowest. As a result, different completions often converge to similar answers, <em>making CoT a natural stabilizer in generation.</em>
-        </p>
-        <p>
-            Why does alignment tuning exert such a dominant effect on BF? Inspired by the <em>superficial alignment hypothesis</em> <d-cite key="zhou2024lima"></d-cite> and recent advances in tuning-free alignment <d-cite key="lin2023unlocking"></d-cite><d-cite key="fei2024nudging"></d-cite>, we hypothesize that base models already encode low-entropy conditional distributions, and that alignment tuning primarily steers generation toward certain stylistic tokens (e.g., "Sure"), thereby narrowing the conditional output space. To test this, we replicate nudging experiments <d-cite key="fei2024nudging"></d-cite>, over Just-Eval-Instruct <d-cite key="lin2023unlocking"></d-cite> and MMLU datasets. We employ Llama-3-70B for drafting most outputs. However, when the base model's Top-1 probability is low, we apply nudging by switching to Llama-3-8B-Instruct to generate a single word.
-            BF was computed as in prior experiments.
-        </p>
-        <p>
-            The results indicate that after nudging occurs early in the generation process -- indicating the prefix generated by the nudging model is of low probability. These observations collectively support our hypothesis. Considering that nudging not only reduces BF but also improves aligned model performance on these tasks <d-cite key="fei2024nudging"></d-cite>, our results highlight the dual effect of alignment training: reducing BF while preserving or even enhancing task performance.
-        </p>
+    <section id="introduction" class="collapsible-section">
+        <div class="collapsible-header">
+            <h2>Introduction</h2>
+            <button class="collapsible-toggle" aria-label="Toggle Introduction section"></button>
+        </div>
+        <div class="collapsible-content">
+            <p>
+                While alignment tuning improves helpfulness and safety in large language models (LLMs), it often introduces a tradeoff: reduced output diversity <d-cite key="padmakumar2024does"></d-cite><d-cite key="chakrabarty2024art"></d-cite><d-cite key="tian2024large"></d-cite><d-cite key="kirk2024understanding"></d-cite><d-cite key="lu2025ai"></d-cite> and increased determinism <d-cite key="saparov2023language"></d-cite><d-cite key="song2024good"></d-cite><d-cite key="renze2024effect"></d-cite><d-cite key="bigelowsubjective"></d-cite><d-cite key="west2025base"></d-cite>. 
+                Our own case study on MMLU <d-cite key="hendrycks2021measuring"></d-cite> confirms that aligned models exhibit reduced variance under Chain-of-Thought (CoT) prompting <d-cite key="wei2022chain"></d-cite>. These findings suggest a potential distributional concentration phenomenon in aligned models -- i.e., a tendency to produce semantically and structurally similar outputs.
+            </p>
+            <p>
+                But how should we conceptualize this concentration? 
+                Autoregressive language generation is inherently a traversal through a <em>branching tree</em>: at each step, the model selects a token and expands the sequence along a specific branch. 
+                This structure, illustrated conceptually in Figure 1, naturally defines a space of possible continuations, independent of specific token identities.
+                To analyze how concentrated this space is during generation, we introduce the Branching Factor (BF) as a local, average-case measure of LLMs' output breadth, offering a microscopic lens on how local branching behavior gives rise to global output concentration.
+            </p>
+            <p>
+                To quantify BF, we leverage perplexity, an information-theoretic proxy for the effective size of a model's output space. 
+                Unlike standard perplexity evaluations that are computed over a dataset using teacher-forcing, our goal is to estimate the perplexity of the model's full output distribution over continuations--i.e., the number of diverse, high-probability sequences it is likely to generate. However, directly computing this quantity is intractable due to the exponential number of possible outputs, especially for long generations. To address this, we leverage the Asymptotic Equipartition Property (AEP) <d-cite key="shannon1948mathematical"></d-cite><d-cite key="mudireddy2024slaves"></d-cite>, which implies that the average log-probability of sufficiently long samples approximates the length-averaged entropy of the underlying distribution. This lets us estimate BF directly from naturally sampled completions, without requiring teacher-forcing or exhaustive enumeration.
+            </p>
+            <p>
+                To see what variables control BF, we investigate how BF varies with output length, model size, prompt complexity, and training paradigms. 
+                Our findings reveal:
+            </p>
+            <ul>
+                <li>BF typically declines over the course of generation, indicating that <em>model output becomes increasingly constrained, and thus more predictable, with each successive token.</em></li>
+                <li>Among various factors, alignment tuning (e.g., RLHF) exerts the strongest and most consistent impact, sharply compressing the branching factor by nearly an order of magnitude (e.g., $12 \rightarrow 1.2$). 
+                This pronounced narrowing <em>offers a quantitative basis for the reduced output variance and decoding sensitivity observed in aligned models</em>, highlighting a key behavioral divergence from their base counterparts.</li>
+            </ul>
+            <p>
+                Is this reduction in BF merely a reflection of concentrated token probabilities, or does it indicate that the model is actively <em>honing in</em> on a narrower target space? To probe this, we conduct resampling experiments, requiring the model to choose an alternative to its top-ranked token at an intermediate generation step. We observe a sharp drop in accuracy, suggesting that aligned models not only concentrate probability mass but also commit to specific generative pathways early in the process. 
+                Building on these theoretical and empirical insights, we also hypothesize and empirically validate that aligned CoT models exhibit particularly low BF and reduced output variability under majority voting. 
+                This stability arises because CoT encourages long reasoning chains, shifting key information to later tokens--precisely where BF tends to be lowest. As a result, different completions often converge to similar answers, <em>making CoT a natural stabilizer in generation.</em>
+            </p>
+            <p>
+                Why does alignment tuning exert such a dominant effect on BF? Inspired by the <em>superficial alignment hypothesis</em> <d-cite key="zhou2024lima"></d-cite> and recent advances in tuning-free alignment <d-cite key="lin2023unlocking"></d-cite><d-cite key="fei2024nudging"></d-cite>, we hypothesize that base models already encode low-entropy conditional distributions, and that alignment tuning primarily steers generation toward certain stylistic tokens (e.g., "Sure"), thereby narrowing the conditional output space. To test this, we replicate nudging experiments <d-cite key="fei2024nudging"></d-cite>, over Just-Eval-Instruct <d-cite key="lin2023unlocking"></d-cite> and MMLU datasets. We employ Llama-3-70B for drafting most outputs. However, when the base model's Top-1 probability is low, we apply nudging by switching to Llama-3-8B-Instruct to generate a single word.
+                BF was computed as in prior experiments.
+            </p>
+            <p>
+                The results indicate that after nudging occurs early in the generation process -- indicating the prefix generated by the nudging model is of low probability. These observations collectively support our hypothesis. Considering that nudging not only reduces BF but also improves aligned model performance on these tasks <d-cite key="fei2024nudging"></d-cite>, our results highlight the dual effect of alignment training: reducing BF while preserving or even enhancing task performance.
+            </p>
+        </div>
     </section>
 
     <section id="preliminary">
@@ -361,49 +343,41 @@
             This theorem is equivalent to the statement: for sufficiently large $N$, the probability of any length-$N$ high-probability output $y_{1:N}$ under $\tilde{P}$ can be approximated as $\exp\left(-N\bar{H}(Y_{1:N} | x; \theta)\right)$, rendering log-probability asymptotically ineffective for distinguishing among them.
         </p>
 
-        <d-figure>
-            <figure>
-                <div class="img-container lazy-load" data-src="static/visualization/closeness_loglik_entropy/mmlu/response_mmlu_256_256_0_0.9_Meta-Llama-3-8B-Instruct_split_-1_constraint_5.pdf">
-                    <div class="loading-spinner">Loading figure...</div>
-                </div>
-                <figcaption>Figure 2: Empirical verification of AEP for Llama-3-8B-Instruct. Length-averaged NLL closely tracks length-averaged Entropy, and standard deviation of length-averaged NLL diminishes with output length.</figcaption>
-            </figure>
-        </d-figure>
-
-        <div class="figure-group" data-group-name="AEP Verification">
+        <!-- Group 2a and 2b together -->
+        <div class="figure-group" data-group-name="AEP Verification (NLL vs Entropy)">
             <d-figure>
                 <figure>
                     <div class="img-container lazy-load" data-src="static/visualization/closeness_loglik_entropy/mmlu/response_mmlu_256_256_0_0.9_Meta-Llama-3-8B-Instruct_split_-1_constraint_5.pdf">
                         <div class="loading-spinner">Loading figure...</div>
                     </div>
-                    <figcaption>Figure 2a: MMLU - Length-averaged NLL vs Entropy</figcaption>
+                    <figcaption>Figure 2a: MMLU - Length-averaged NLL closely tracks length-averaged Entropy.</figcaption>
                 </figure>
             </d-figure>
-            
             <d-figure>
                 <figure>
                     <div class="img-container lazy-load" data-src="static/visualization/closeness_loglik_entropy/language_modeling/response_news_1024_max_tokens_2048_2048_0_0.9_Meta-Llama-3-8B-Instruct_split_-1_constraint_3.pdf">
                         <div class="loading-spinner">Loading figure...</div>
                     </div>
-                    <figcaption>Figure 2b: BBC News - Length-averaged NLL vs Entropy</figcaption>
+                    <figcaption>Figure 2b: BBC News - Length-averaged NLL closely tracks length-averaged Entropy.</figcaption>
                 </figure>
             </d-figure>
-            
+        </div>
+        <!-- Group 2c and 2d together -->
+        <div class="figure-group" data-group-name="AEP Verification (NLL Standard Deviation)">
             <d-figure>
                 <figure>
                     <div class="img-container lazy-load" data-src="static/visualization/closeness_loglik_entropy/mmlu/response_mmlu_256_256_0_0.9_Meta-Llama-3-8B-Instruct_split_-1_loglik_std.pdf">
                         <div class="loading-spinner">Loading figure...</div>
                     </div>
-                    <figcaption>Figure 2c: MMLU - Standard Deviation of NLL</figcaption>
+                    <figcaption>Figure 2c: MMLU - Standard deviation of length-averaged NLL diminishes with output length.</figcaption>
                 </figure>
             </d-figure>
-            
             <d-figure>
                 <figure>
                     <div class="img-container lazy-load" data-src="static/visualization/closeness_loglik_entropy/language_modeling/response_news_1024_max_tokens_2048_2048_0_0.9_Meta-Llama-3-8B-Instruct_split_-1_loglik_std.pdf">
                         <div class="loading-spinner">Loading figure...</div>
                     </div>
-                    <figcaption>Figure 2d: BBC News - Standard Deviation of NLL</figcaption>
+                    <figcaption>Figure 2d: BBC News - Standard deviation of length-averaged NLL diminishes with output length.</figcaption>
                 </figure>
             </d-figure>
         </div>
@@ -441,15 +415,6 @@
         <p>
             We consider a variety of tasks covering common application scenarios of LLM generation, including reasoning and open-ended generation: <strong>MMLU</strong> <d-cite key="hendrycks2021measuring"></d-cite> (Reasoning), <strong>Cognac</strong> <d-cite key="chen2022cognac"></d-cite> (Controlled Generation), <strong>BBCLatestNews</strong> <d-cite key="li2024latesteval"></d-cite> (News Generation), and <strong>Creative Story Generation</strong> <d-cite key="chakrabarty2024art"></d-cite> (Creative Generation). To test subjective randomness bias <d-cite key="bigelowsubjective"></d-cite>, we also prepare a synthetic task <strong>Random Strings</strong> where the prompt is generated via randomly sampled characters.
         </p>
-
-        <d-figure>
-            <figure>
-                <div class="img-container lazy-load" data-src="static/visualization_temp/outputs/storytelling/piecewise_ebf_Llama-3-70B_perplexity_no_legend.pdf">
-                    <div class="loading-spinner">Loading figure...</div>
-                </div>
-                <figcaption>Figure 3: Shrinking BF with output length over various tasks for Llama-3-70B and Llama-3-70B-Instruct. For better visualization, we compute the exponential moving averaged values of BF with the smoothing factor set as 0.1.</figcaption>
-            </figure>
-        </d-figure>
 
         <div class="figure-group" data-group-name="BF Dynamics Across Tasks">
             <d-figure>
@@ -531,15 +496,6 @@
         <p>
             Then we normalize it as ${I}(D_i)=\frac{\tilde{I}(D_i)}{\sum \tilde{I}(D_i)}$.
         </p>
-
-        <d-figure>
-            <figure>
-                <div class="img-container lazy-load" data-src="static/visualization/pareto_analysis_max_length/pareto_chart_cognac.pdf">
-                    <div class="loading-spinner">Loading figure...</div>
-                </div>
-                <figcaption>Figure 4: Pareto Analysis of BF across various IFs. $AT$ indicates whether the model is aligned. $C$ denotes the prompt complexity. $S$ refers to model size, and $G$ refers to model generation (Llama-2 vs. Llama-3). Across all settings, alignment tuning has the most pronounced impact on BF.</figcaption>
-            </figure>
-        </d-figure>
 
         <div class="figure-group" data-group-name="Pareto Analysis Across Tasks">
             <d-figure>
@@ -798,7 +754,7 @@
             We use the scripts in Qwen-2.5-Math <d-cite key="yang2024qwen2"></d-cite> for standard reasoning benchmarks. We sample 200 examples from MMLU-STEM and compute the performance numbers under 64 trials and report the average performance.
         </p>
         
-        <d-figure>
+        <d-figure class="appendix-figure">
             <figure>
                 <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B_perplexity.pdf">
                     <div class="loading-spinner">Loading figure...</div>
@@ -807,7 +763,7 @@
             </figure>
         </d-figure>
 
-        <div class="figure-group" data-group-name="Llama-2 Family BF Dynamics">
+        <div class="figure-group appendix-figure" data-group-name="Llama-2 Family BF Dynamics">
             <d-figure>
                 <figure>
                     <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B_perplexity.pdf">
@@ -985,7 +941,7 @@
             <d-cite key="li2024latesteval"></d-cite> is a news collection dataset aims at collecting news that is beyond the time cut for training LLMs. Unlike creative story plots, news articles are typically more structured and organized, although headlines can still be surprising. We select news articles from January to July 2024 to minimize data contamination, as the Llama models have a knowledge cut-off in late 2023. We formulate prompt complexity $C$ as providing $C \times 15$ words in the plot.
         </p>
         
-        <d-figure>
+        <d-figure class="appendix-figure">
             <figure>
                 <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B_perplexity.pdf">
                     <div class="loading-spinner">Loading figure...</div>
@@ -994,7 +950,7 @@
             </figure>
         </d-figure>
 
-        <div class="figure-group" data-group-name="Llama-3 Family BF Dynamics">
+        <div class="figure-group appendix-figure" data-group-name="Llama-3 Family BF Dynamics">
             <d-figure>
                 <figure>
                     <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B_perplexity.pdf">
@@ -1158,7 +1114,7 @@
             The full task-wise BF evaluation results over different prompt complexity can be found in Figure A.3. Here we can see that prompt complexity modulates BF in highly non-consistent ways across models and tasks, and there are no clear monotonic patterns, contradicting the intuition that with more context given, the model should have more confidence in what to generate.
         </p>
         
-        <d-figure>
+        <d-figure class="appendix-figure">
             <figure>
                 <div class="img-container lazy-load" data-src="static/visualization/cognac/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">
                     <div class="loading-spinner">Loading figure...</div>
@@ -1167,7 +1123,7 @@
             </figure>
         </d-figure>
 
-        <div class="figure-group" data-group-name="Task-wise BF Evaluation">
+        <div class="figure-group appendix-figure" data-group-name="Task-wise BF Evaluation">
             <d-figure>
                 <figure>
                     <div class="img-container lazy-load" data-src="static/visualization/cognac/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">

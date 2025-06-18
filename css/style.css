@@ -1,0 +1,1641 @@
+/* Smooth Scrolling for Navigation */
+html { scroll-behavior: smooth; }
+
+/* Base styles */
+.header-container {
+  background-color: #FCF5E8; /* Reddish-pink background */
+  color: #1d5d8f;  /* Dark teal text */
+  text-align: center; /* Center content on small screens */
+  padding: 20px; /* Reduced padding for small screens */
+}
+
+
+.header-content h1 {
+  font-size: 1.5em; /* Adjust font size for small screens */
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+}
+
+.header-image img {
+  max-width: 100%; /* Ensure the image is never more than 100% of its container */
+  height: auto; /* Maintain the aspect ratio of the image */
+  display: block; /* Prevent inline spacing issues */
+  margin: 0 auto 20px; /* Center the image horizontally and add margin below */
+}
+
+.button-container {
+  margin-top: 20px; /* Add margin above the buttons */
+  margin-bottom: 20px; /* Add margin below the buttons */
+}
+
+.button-container a.button {
+  display: inline-block; /* Make buttons inline */
+  margin: 10px; /* Space around buttons */
+  padding: 10px 20px; /* Increase tap area for touch screens */
+}
+
+.button-container a.button {
+  background-color: #b7e7f7; /* Yellow background */
+  color: #1d5d8f; /* Black text */
+  border: 2px solid #1d5d8f; /* Orange border */
+  border-radius: 25px; /* Rounded borders */
+  padding: 10px 20px; /* Top and bottom padding, left and right padding */
+  margin: 5px; /* Space between the buttons */
+  text-decoration: none; /* Remove the underline from links */
+  display: inline-block; /* Display links as inline blocks */
+  font-weight: bold; /* Make the text bold */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
+}
+
+.button-container a.button:hover {
+  background-color: #62c8ec; /* Darker yellow background on hover */
+  color: #1d5d8f; /* White text on hover */
+}
+
+/* Styles for larger screens using a media query */
+@media (min-width: 600px) {
+  .header-container {
+    display: flex; /* Use flexbox for positioning on larger screens */
+    justify-content: space-between; /* Space between the content and image */
+    align-items: center; /* Align items vertically */
+    padding: 50px 50px; /* Increase padding for larger screens */
+  }
+
+  .header-content {
+    max-width: calc(50% - 20px); /* Adjust width to include margin */
+    text-align: left; /* Align text to the left for larger screens */
+    margin-right: 20px; /* Add margin to the right of the header content */
+  }
+
+  .header-content h1 {
+    font-size: 3em; /* Increase font size for larger screens */
+  }
+
+  .header-image {
+    max-width: calc(50% - 20px); /* Adjust width to include margin */
+  }
+
+  .header-image img {
+    max-width: 100%; /* Image should be responsive within the container */
+    height: auto; /* Maintain the aspect ratio */
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  d-contents {
+      display: none;
+  }
+}
+
+/* Byline styling from website template */
+.byline {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0 5px 10px;
+    margin-bottom: 20px;
+}
+
+.byline-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.byline-column {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.byline-column h3 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+}
+
+.byline-column p {
+    color: #666;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.author-link, .affiliation-link {
+    color: #666;
+    text-decoration: none;
+    border-bottom: none;
+    cursor: pointer;
+}
+
+.author-link:hover, .affiliation-link:hover {
+    text-decoration: underline;
+    border-bottom: none;
+}
+
+/* Figure selector styling */
+.figure-selector {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 2px solid #dee2e6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.figure-selector:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #0066cc;
+}
+
+.figure-selector label {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 0.75rem;
+    font-size: 0.95rem;
+    display: inline-block;
+    min-width: 120px;
+}
+
+.figure-selector select {
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #ced4da;
+    border-radius: 6px;
+    background: white;
+    font-size: 0.9rem;
+    min-width: 250px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.figure-selector select:hover {
+    border-color: #0066cc;
+    box-shadow: 0 2px 6px rgba(0, 102, 204, 0.2);
+}
+
+.figure-selector select:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.figure-selector select option {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Figure group styling */
+.figure-group {
+    margin: 2rem 0;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #fafbfc;
+}
+
+.figure-group d-figure {
+    transition: all 0.3s ease;
+}
+
+.figure-group d-figure:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+d-article {
+  contain: none;
+}
+
+d-article d-contents {
+  max-width: 100%; /* Or the maximum width you want it to have */
+  box-sizing: border-box; /* Include padding in the width calculation */
+  align-self: start;
+  grid-column: 1 / 4;
+  grid-row: auto / span 4;
+  justify-self: end;
+  margin-top: 5em;
+  padding-right: 3em;
+  padding-left: 2em;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+
+d-article d-contents nav {
+  display: block;
+}
+
+d-article d-contents nav h4 {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+d-article d-contents nav div {
+  color: rgba(91, 184, 73, 0.8);
+  font-weight: bold;
+}
+
+d-article d-contents nav a {
+  color: rgba(0, 0, 0, 0.8);
+  border-bottom: none;
+  text-decoration: none;
+}
+
+d-article d-contents li {
+  list-style-type: none;
+}
+
+d-article d-contents ul {
+  padding-left: 1em;
+}
+
+d-article d-contents nav ul li {
+  margin-bottom: 0.25em;
+}
+
+d-article d-contents nav a:hover {
+  text-decoration: underline solid rgba(0, 0, 0, 0.6);
+}
+
+d-article d-contents nav ul {
+  margin-top: 0;
+  margin-bottom: 6px;
+}
+
+d-article d-contents nav > div {
+  display: block;
+  outline: none;
+  margin-bottom: 0.5em;
+}
+
+d-article d-contents nav > div > a {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+d-article d-contents nav > div > a:hover,
+d-article d-contents nav > ul > li > a:hover {
+  text-decoration: none;
+}
+
+.active-nav-item {
+  color: #0d6efd; /* Change as per your preference */
+}
+
+.shaded-figure {
+  background-color: hsl(0, 0%, 97%);
+  border-top: 1px solid hsla(0, 0%, 0%, 0.1);
+  border-bottom: 1px solid hsla(0, 0%, 0%, 0.1);
+  padding: 30px 0;
+}
+
+.pointer {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  top: 26px;
+  left: -48px;
+}
+
+.sidebar {
+  position: sticky;
+}
+
+d-article section{
+  margin: 0 !important;
+}
+
+/* Custom styles for Branching Factor website */
+
+/* Preserve original styling for specific elements */
+.highlight {
+    background-color: #e8f4f8;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+.demo-container {
+    margin: 30px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.slider-container {
+    width: 100%;
+}
+
+.slider-nav {
+    display: flex;
+    background: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+}
+
+.slider-btn {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-weight: 500;
+}
+
+.slider-btn:hover {
+    background: #e0e0e0;
+}
+
+.slider-btn.active {
+    background: #3498db;
+    color: white;
+}
+
+.slider-content {
+    padding: 20px;
+    min-height: 300px;
+}
+
+.module-slide {
+    display: none;
+}
+
+.module-slide.active {
+    display: block;
+}
+
+.demo-placeholder {
+    background: #f8f9fa;
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pdf-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.pdf-container canvas {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+
+.carousel-container {
+    position: relative;
+    min-height: 300px;
+}
+
+.carousel-slide {
+    transition: opacity 0.3s ease;
+    display: none;
+    text-align: center;
+}
+
+.carousel-slide.active {
+    display: block;
+}
+
+.carousel-slide canvas {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto !important;
+}
+
+.carousel-nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.carousel-btn {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.carousel-btn.active {
+    background: #3498db;
+    color: white;
+}
+
+.img-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.img-caption {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 10px;
+}
+
+.figure-caption {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 10px;
+}
+
+.responsive-img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.zoomable {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.zoomable:hover {
+    transform: scale(1.02);
+}
+
+.highlight-embellish {
+    background-color: #ffeb3b;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.highlight-actual {
+    background-color: #4caf50;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.highlight-warning {
+    background-color: #ff9800;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.links {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+/* Ensure proper spacing for sections */
+d-article section {
+    margin-bottom: 40px;
+}
+
+/* Style for the resources section */
+.links h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.links ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.links li {
+    margin-bottom: 10px;
+}
+
+.links a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+/* Ensure proper styling for the byline section */
+.byline {
+    margin-bottom: 40px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .slider-nav {
+        flex-direction: column;
+    }
+    
+    .slider-btn {
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .carousel-nav {
+        flex-wrap: wrap;
+    }
+    
+    .carousel-btn {
+        margin: 2px;
+        font-size: 0.9em;
+    }
+}
+
+/* Appendix Section Styles */
+.appendix-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.figure-selector {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.figure-selector label {
+    font-weight: 600;
+    color: #333;
+}
+
+.figure-selector select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+.figure-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    background-color: white;
+}
+
+.figure-display {
+    text-align: center;
+}
+
+.figure-display img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+/* Table Styles */
+.table-container {
+    margin: 2rem 0;
+    overflow-x: auto;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table-container th,
+.table-container td {
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.table-container th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+}
+
+.table-container tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table-container tr:hover {
+    background-color: #f0f0f0;
+}
+
+.table-caption {
+    margin-top: 1rem;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Theorem Box */
+.theorem {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    border-radius: 4px;
+}
+
+.theorem h4 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .figure-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .figure-selector select {
+        min-width: 100%;
+    }
+    
+    .table-container {
+        font-size: 12px;
+    }
+    
+    .table-container th,
+    .table-container td {
+        padding: 0.5rem 0.25rem;
+    }
+}
+
+/* Lazy loading styles */
+.lazy-load {
+    min-height: 200px;
+    position: relative;
+    background: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #e74c3c;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* PDF canvas styling */
+.pdf-canvas {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Hypothesis styling */
+.hypothesis {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.hypothesis h4 {
+    margin: 0 0 10px 0;
+    color: #007bff;
+}
+
+.hypothesis p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Theorem styling */
+.theorem {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.theorem h4 {
+    margin: 0 0 15px 0;
+    color: #856404;
+}
+
+.theorem p {
+    margin: 0 0 15px 0;
+}
+
+/* Section content styling */
+#sampling-content,
+#bf-formulation-content,
+#bf-measuring-content,
+#bf-nudging-content,
+#related-works-content,
+#conclusion-content {
+    min-height: 100px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .lazy-load {
+        min-height: 150px;
+    }
+    
+    .loading-spinner {
+        width: 30px;
+        height: 30px;
+        border-width: 3px;
+    }
+    
+    .hypothesis,
+    .theorem {
+        padding: 15px;
+        margin: 15px 0;
+    }
+}
+
+/* Math rendering improvements */
+.math-display {
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+/* Table improvements */
+.table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.table-container th,
+.table-container td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table-container th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table-container tr:hover {
+    background: #f8f9fa;
+}
+
+.table-caption {
+    padding: 15px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    font-size: 0.9em;
+    color: #6c757d;
+    text-align: left;
+}
+
+/* Figure container improvements */
+.figure-container {
+    margin: 30px 0;
+}
+
+.figure-selector {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.figure-selector label {
+    font-weight: 600;
+    margin-right: 10px;
+    color: #495057;
+}
+
+.figure-selector select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.figure-selector select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.figure-display {
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Zoomable image improvements */
+.zoomable-image {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.zoomable-image.zoomed {
+    transform: scale(1.5);
+    z-index: 1000;
+    position: relative;
+}
+
+/* Responsive image improvements */
+.responsive-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Content section improvements */
+section {
+    margin: 40px 0;
+    padding: 20px 0;
+}
+
+section h2 {
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+    color: #2c3e50;
+}
+
+section h3 {
+    color: #34495e;
+    margin: 25px 0 15px 0;
+    font-size: 1.3em;
+}
+
+/* Appendix section improvements */
+#appendix {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 12px;
+    margin: 40px 0;
+}
+
+#appendix h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #6c757d;
+}
+
+.appendix-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.appendix-section h3 {
+    color: #495057;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+/* Math formula improvements */
+.MathJax {
+    font-size: 1.1em !important;
+}
+
+.MathJax_Display {
+    margin: 1.5em 0 !important;
+    text-align: center !important;
+}
+
+.MathJax_Display .MathJax {
+    font-size: 1.2em !important;
+}
+
+/* Improve table formatting */
+.table-container {
+    margin: 2em 0;
+    overflow-x: auto;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9em;
+}
+
+.table-container th,
+.table-container td {
+    padding: 0.75em;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.table-container th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.table-container tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table-caption {
+    text-align: center;
+    font-style: italic;
+    margin-top: 1em;
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Hypothesis and theorem boxes */
+.hypothesis, .theorem {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 1em;
+    margin: 1.5em 0;
+    border-radius: 4px;
+}
+
+.hypothesis h4, .theorem h4 {
+    margin-top: 0;
+    color: #007bff;
+    font-weight: 600;
+}
+
+/* Improve figure containers */
+.img-container {
+    text-align: center;
+    margin: 2em 0;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pdf-canvas {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Error message */
+.error-message {
+    color: #dc3545;
+    text-align: center;
+    padding: 2em;
+    font-style: italic;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+    .table-container {
+        font-size: 0.8em;
+    }
+    
+    .table-container th,
+    .table-container td {
+        padding: 0.5em 0.25em;
+    }
+    
+    .MathJax {
+        font-size: 1em !important;
+    }
+    
+    .MathJax_Display .MathJax {
+        font-size: 1.1em !important;
+    }
+}
+
+/* Improve overall typography */
+body {
+    line-height: 1.6;
+    color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+ul, ol {
+    margin-bottom: 1em;
+    padding-left: 2em;
+}
+
+li {
+    margin-bottom: 0.5em;
+}
+
+/* Improve header styling */
+.header-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4em 2em;
+    text-align: center;
+}
+
+.header-content h1 {
+    font-size: 2.5em;
+    margin-bottom: 0.5em;
+    color: white;
+}
+
+.header-content h2 {
+    font-size: 1.3em;
+    margin-bottom: 2em;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+}
+
+.button-container {
+    margin-top: 2em;
+}
+
+.button {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* Improve byline styling */
+.byline {
+    background-color: #f8f9fa;
+    padding: 2em;
+    margin: 2em 0;
+    border-radius: 8px;
+}
+
+.byline-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1em;
+}
+
+.byline-column {
+    text-align: center;
+    flex: 1;
+}
+
+.byline-column h3 {
+    margin-bottom: 0.5em;
+    color: #666;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.author-link, .affiliation-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.author-link:hover, .affiliation-link:hover {
+    text-decoration: underline;
+}
+
+/* Improve section styling */
+section {
+    margin: 3em 0;
+    padding: 0 1em;
+}
+
+section h2 {
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5em;
+    margin-bottom: 1.5em;
+}
+
+/* Improve links section */
+.links {
+    background-color: #f8f9fa;
+    padding: 2em;
+    margin: 3em 0;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.links h3 {
+    margin-bottom: 1em;
+    color: #333;
+}
+
+.links ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 2em;
+}
+
+.links li {
+    margin: 0;
+}
+
+.links a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+/* Improve appendix styling */
+.appendix-section {
+    margin: 3em 0;
+    padding: 2em;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.figure-selector {
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+.figure-selector label {
+    font-weight: 600;
+    margin-right: 1em;
+}
+
+.figure-selector select {
+    padding: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.figure-container {
+    text-align: center;
+}
+
+.figure-display {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Improve zoomable images */
+.zoomable-image {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    max-width: 100%;
+    height: auto;
+}
+
+.zoomable-image.zoomed {
+    transform: scale(1.5);
+    z-index: 1000;
+    position: relative;
+}
+
+/* Improve PDF rendering */
+.pdf-container {
+    text-align: center;
+    margin: 2em 0;
+}
+
+/* Improve carousel styling */
+.carousel-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-slide {
+    display: none;
+    text-align: center;
+}
+
+.carousel-slide.active {
+    display: block;
+}
+
+.carousel-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    margin-top: 1em;
+}
+
+.carousel-btn {
+    padding: 0.5em 1em;
+    border: none;
+    background-color: #f8f9fa;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-btn.active,
+.carousel-btn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Improve module slider */
+.module-slide {
+    display: none;
+}
+
+.module-slide.active {
+    display: block;
+}
+
+.slider-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    margin: 2em 0;
+}
+
+.slider-btn {
+    padding: 0.75em 1.5em;
+    border: none;
+    background-color: #f8f9fa;
+    color: #333;
+    cursor: pointer;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.slider-btn.active,
+.slider-btn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Improve content bar */
+d-contents {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+    padding: 1em 0;
+    z-index: 100;
+}
+
+d-contents nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 2em;
+}
+
+d-contents a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+d-contents a:hover {
+    color: #007bff;
+}
+
+/* Improve responsive design */
+@media (max-width: 768px) {
+    .header-content h1 {
+        font-size: 2em;
+    }
+    
+    .header-content h2 {
+        font-size: 1.1em;
+    }
+    
+    .byline-container {
+        flex-direction: column;
+        gap: 1em;
+    }
+    
+    .links ul {
+        flex-direction: column;
+        gap: 1em;
+    }
+    
+    d-contents nav {
+        flex-wrap: wrap;
+        gap: 1em;
+    }
+    
+    .button {
+        display: block;
+        margin: 0.5em auto;
+        max-width: 200px;
+    }
+}
+
+/* Enhanced Math and Equation Styling */
+.math-display {
+    text-align: center;
+    margin: 2em 0;
+    padding: 1em;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.math-display h4 {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.4;
+}
+
+/* KaTeX styling improvements */
+.katex {
+    font-size: 1.1em;
+    line-height: 1.2;
+}
+
+.katex-display {
+    margin: 1.5em 0;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5em 0;
+}
+
+.katex-display > .katex {
+    display: inline-block;
+    text-align: center;
+    max-width: 100%;
+}
+
+/* MathJax styling improvements */
+.MathJax {
+    font-size: 1.1em;
+    line-height: 1.2;
+}
+
+.MathJax_Display {
+    margin: 1.5em 0;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5em 0;
+}
+
+.MathJax_Display .MathJax {
+    display: inline-block;
+    text-align: center;
+    max-width: 100%;
+}
+
+/* Equation container styling */
+.equation-container {
+    text-align: center;
+    margin: 2em 0;
+    padding: 1.5em;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.equation-container h4 {
+    margin: 0 0 0.5em 0;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #495057;
+    line-height: 1.4;
+}
+
+/* Inline math styling */
+.math-inline {
+    font-size: 1em;
+    color: #495057;
+}
+
+/* Responsive math */
+@media (max-width: 768px) {
+    .katex-display,
+    .MathJax_Display {
+        font-size: 0.9em;
+        margin: 1em 0;
+        padding: 0.3em 0;
+    }
+    
+    .equation-container {
+        margin: 1.5em 0;
+        padding: 1em;
+    }
+    
+    .equation-container h4 {
+        font-size: 1em;
+    }
+}
+
+/* Enhanced theorem and hypothesis styling */
+.theorem, .hypothesis {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid #007bff;
+    border-radius: 8px;
+    padding: 1.5em;
+    margin: 2em 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.theorem h4, .hypothesis h4 {
+    margin: 0 0 1em 0;
+    color: #495057;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.theorem p, .hypothesis p {
+    margin: 0;
+    color: #495057;
+    line-height: 1.6;
+}
+
+/* Table styling improvements */
+.table-container {
+    margin: 2em 0;
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-container th {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    padding: 1em;
+    text-align: center;
+    font-weight: 600;
+    border: none;
+}
+
+.table-container td {
+    padding: 0.8em;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.table-container tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.table-container tr:hover {
+    background-color: #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.table-caption {
+    text-align: center;
+    margin-top: 1em;
+    font-style: italic;
+    color: #6c757d;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+/* Citation styling */
+.citation {
+    color: #0066cc;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    padding: 1px 3px;
+    border-radius: 3px;
+    background-color: rgba(0, 102, 204, 0.05);
+}
+
+.citation:hover {
+    color: #004499;
+    text-decoration: underline;
+    background-color: rgba(0, 102, 204, 0.1);
+    transform: translateY(-1px);
+}
+
+.citation:active {
+    transform: translateY(0);
+}
+
+.bibliography-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.bibliography-section h2 {
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.bibliography-section h2:hover {
+    color: #0066cc;
+}
+
+.toggle-icon {
+    transition: transform 0.2s ease;
+}
+
+.bibliography-list {
+    list-style: decimal;
+    padding-left: 2rem;
+    line-height: 1.6;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.bibliography-list li {
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.bibliography-list li:hover {
+    border-left-color: #0066cc;
+    background-color: rgba(0, 102, 204, 0.02);
+}
+
+.bibliography-list li em {
+    color: #333;
+    font-style: italic;
+}
+
+.bibliography-list li a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.bibliography-list li a:hover {
+    text-decoration: underline;
+}

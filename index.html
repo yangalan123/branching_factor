@@ -63,7 +63,8 @@
         <h2>Understanding LLM Output Diversity Through Probability Concentration</h2>
         <div class="button-container">
             <a href="https://arxiv.org/abs/2502.16810" class="button">Paper</a>
-            <a href="#introduction" class="button">Introduction</a>
+            <a href="#introduction" class="button">Codes</a>
+            <a href="#results" class="button">Video</a>
             <a href="#results" class="button">Results</a>
         </div>
     </div>
@@ -80,11 +81,12 @@
             <h4>Contents</h4>
             <div><a href="#top">Top</a></div>
             <div><a href="#abstract">Abstract</a></div>
-            <div><a href="#introduction">Introduction</a></div>
-            <div><a href="#preliminary">Background</a></div>
-            <div><a href="#sampling-efforts">Sampling Efforts</a></div>
+            <!-- <div><a href="#introduction">Introduction</a></div> -->
+            <!-- <div><a href="#preliminary">Background</a></div> -->
+            <div><a href="#sampling-efforts">Case Study: Decoding Methods</a></div>
             <div><a href="#bf-formulation">BF Formulation</a></div>
             <div><a href="#bf-measuring">BF Measurement</a></div>
+            <div><a href="#application-variance">Application: Variance Reduction</a></div>
             <div><a href="#bf-nudging">Nudging Experiments</a></div>
             <div><a href="#related-works">Related Works</a></div>
             <div><a href="#conclusion">Conclusion</a></div>
@@ -95,13 +97,13 @@
         <div class="byline-container">
             <div class="byline-column">
                 <h3>Authors</h3>
-                <p><a href="#" class="author-link">Chenghao Yang</a> and <a href="#" class="author-link">Ari Holtzman</a></p>
+                <p><a href="https://yangalan123.github.io/" class="author-link">Chenghao Yang</a> and <a href="https://ariholtzman.com/" class="author-link">Ari Holtzman</a></p>
             </div>
         </div>
         <div class="byline-container">
             <div class="byline-column">
                 <h3>Affiliations</h3>
-                <p><a href="https://www.uchicago.edu/" class="affiliation-link">University of Chicago</a></p>
+                <p>University of Chicago</p>
             </div>
         </div>
     </div>
@@ -118,100 +120,71 @@
             <li>BF often decreases as generation progresses, suggesting that LLMs become more predictable as they generate</li>
             <li>Alignment tuning substantially sharpens the model's output distribution from the outset, reducing BF by nearly an order of magnitude (e.g., from 12 to 1.2) relative to base models</li>
         </ul>
+        <div class="figure-container">
+            <figure>
+                <div class="img-container lazy-load" data-src="static/visualization/surface_figure_1_v2.pdf">
+                    <div class="loading-spinner">Loading figure...</div>
+                </div>
+            </figure>
+        </div>
         <p>
-            This stark reduction helps explain why aligned models often appear less sensitive to decoding strategies. Building on this insight, we find this stability has surprising implications for complex reasoning. <em>Aligned Chain-of-Thought (CoT) models</em> (e.g., DeepSeek-distilled models) leverage this effect by generating longer reasoning chains, pushing generation into later, more deterministic (lower BF) stages, resulting in more stable outputs.
+            We illustrate the concept in the figure above. Building on this insight, we find this stability has surprising implications for complex reasoning.
         </p>
+        <blockquote class="highlight-quote">
+            <em>Aligned Chain-of-Thought (CoT) models</em> (e.g., DeepSeek-distilled models) leverage this effect by generating longer reasoning chains, pushing generation into later, more deterministic (lower BF) stages, resulting in more stable outputs.
+        </blockquote>
         <p>
             We hypothesize that alignment tuning does not fundamentally change a model's behavior, but instead steers it toward stylistic tokens (e.g., "Sure") that unlock low-entropy trajectories already present in the base model. This view is supported by nudging experiments, which show that prompting base models with such tokens can similarly reduce BF.
         </p>
         <p>
-            Together, our findings establish BF as a powerful diagnostic for understanding and controlling output behavior in LLMs - clarifying:
+            Together, our findings establish BF as a powerful diagnostic for understanding and controlling LLM outputs - shedding light on 
         </p>
         <ul>
-            <li>Why alignment reduces variability</li>
+            <li>How Alignment reduces variability</li>
             <li>How CoT promotes stable generations</li>
             <li>How base models can be steered away from diversity</li>
         </ul>
     </section>
 
-    <section id="introduction" class="collapsible-section">
+    <section id="preliminary" class="collapsible-section" data-collapsed="true">
         <div class="collapsible-header">
-            <h2>Introduction</h2>
-            <button class="collapsible-toggle" aria-label="Toggle Introduction section"></button>
+            <h2>Preliminary</h2>
+            <button class="collapsible-toggle collapsed" aria-label="Toggle Background section"></button>
         </div>
-        <div class="collapsible-content">
+        <div class="collapsible-content collapsed">
+            <h3>Autoregressive Language Models</h3>
             <p>
-                While alignment tuning improves helpfulness and safety in large language models (LLMs), it often introduces a tradeoff: reduced output diversity <d-cite key="padmakumar2024does"></d-cite><d-cite key="chakrabarty2024art"></d-cite><d-cite key="tian2024large"></d-cite><d-cite key="kirk2024understanding"></d-cite><d-cite key="lu2025ai"></d-cite> and increased determinism <d-cite key="saparov2023language"></d-cite><d-cite key="song2024good"></d-cite><d-cite key="renze2024effect"></d-cite><d-cite key="bigelowsubjective"></d-cite><d-cite key="west2025base"></d-cite>. 
-                Our own case study on MMLU <d-cite key="hendrycks2021measuring"></d-cite> confirms that aligned models exhibit reduced variance under Chain-of-Thought (CoT) prompting <d-cite key="wei2022chain"></d-cite>. These findings suggest a potential distributional concentration phenomenon in aligned models -- i.e., a tendency to produce semantically and structurally similar outputs.
+                LLMs are typically trained to predict the next token and the probability of output $P\left(y_{1:N} | x; \theta \right)$ can be decomposed as: $P\left(y_{1:N} | x; \theta \right)=\prod_{t=1}^{N}P\left(y_t | [x, y_{1:t-1}]; \theta \right)$,
+                where $y_{1:t-1}$ is the output up to position $t-1$, $\theta$ is the model parameter, and $x$ is the prompt.
+                Each output sample is generated via token-by-token sampling, and the generation of multiple samples naturally forms a search tree <d-cite key="yao2023tree"></d-cite><d-cite key="hao2023reasoning"></d-cite><d-cite key="wan2024alphazero"></d-cite>.
+                Modern LLMs would go through multiple training stages. 
+                In this paper, we would use <em>base models</em> to refer to the models trained without <em>alignment tuning</em> techniques <d-cite key="touvron2023llama"></d-cite>, including instruction tuning and Reinforcement Learning from Human Feedback (RLHF) <d-cite key="ouyang2022training"></d-cite><d-cite key="bai2022training"></d-cite> (e.g., "Llama-2-13B" <d-cite key="touvron2023llama"></d-cite>) and <em>aligned models</em> to refer to models undergoing these additional fine-tuning stages (e.g., "Llama-2-13B-Chat").
             </p>
+            
+            <h3>Decoding Methods as Truncated Sampling</h3>
             <p>
-                But how should we conceptualize this concentration? 
-                Autoregressive language generation is inherently a traversal through a <em>branching tree</em>: at each step, the model selects a token and expands the sequence along a specific branch. 
-                This structure, illustrated conceptually in Figure 1, naturally defines a space of possible continuations, independent of specific token identities.
-                To analyze how concentrated this space is during generation, we introduce the Branching Factor (BF) as a local, average-case measure of LLMs' output breadth, offering a microscopic lens on how local branching behavior gives rise to global output concentration.
+                Though LLMs are trained with a large vocabulary size $|V|$, in many cases, the desired tokens often concentrate on a much smaller set of tokens under distribution $P(y_{t} | x, y_{1:t-1}; \theta)$. Common decoding methods <d-cite key="Holtzman2020The"></d-cite><d-cite key="hewitt2022truncation"></d-cite>
+                utilize this observation and propose various heuristics to truncate vocabulary $V$ as $V_t$ at each step $t$. The next token is then sampled from the renormalized distribution $\tilde{P}\left(y_t | [x, y_{1:t-1}]; \theta \right)$:
             </p>
+            <div class="equation-container">
+                <h4>$$\tilde{P}\left(y_t | [x, y_{1:t-1}]; \theta \right) = \begin{cases}
+                     \frac{P(y_{t} | x, y_{1:t-1}; \theta)}{\sum_{y_{t} \in V_t} P(y_{t} | x, y_{1:t-1}; \theta) } & y_{t} \in V_t \\
+                     0 & \text{otherwise}
+                \end{cases}$$</h4>
+            </div>
+            
+            <h3>Token-wise Conditional Entropy</h3>
             <p>
-                To quantify BF, we leverage perplexity, an information-theoretic proxy for the effective size of a model's output space. 
-                Unlike standard perplexity evaluations that are computed over a dataset using teacher-forcing, our goal is to estimate the perplexity of the model's full output distribution over continuations--i.e., the number of diverse, high-probability sequences it is likely to generate. However, directly computing this quantity is intractable due to the exponential number of possible outputs, especially for long generations. To address this, we leverage the Asymptotic Equipartition Property (AEP) <d-cite key="shannon1948mathematical"></d-cite><d-cite key="mudireddy2024slaves"></d-cite>, which implies that the average log-probability of sufficiently long samples approximates the length-averaged entropy of the underlying distribution. This lets us estimate BF directly from naturally sampled completions, without requiring teacher-forcing or exhaustive enumeration.
+                Since tokens are sampled from the truncated distribution $\tilde{P}$, we use $\tilde{P}$ to compute the token-level conditional entropy $\tilde{H}$ for a given prefix instance $y_{1:t-1}$:
             </p>
+            <div class="equation-container">
+                <h4>$$\tilde{H}\left(Y_t | [x, y_{1:t-1}]; \theta \right) 
+                =-\sum_{y_t} \tilde{P}\left(y_t | [x, y_{1:t-1}]; \theta \right) \log \tilde{P}\left(y_t | [x, y_{1:t-1}]; \theta \right)$$</h4>
+            </div>
             <p>
-                To see what variables control BF, we investigate how BF varies with output length, model size, prompt complexity, and training paradigms. 
-                Our findings reveal:
-            </p>
-            <ul>
-                <li>BF typically declines over the course of generation, indicating that <em>model output becomes increasingly constrained, and thus more predictable, with each successive token.</em></li>
-                <li>Among various factors, alignment tuning (e.g., RLHF) exerts the strongest and most consistent impact, sharply compressing the branching factor by nearly an order of magnitude (e.g., $12 \rightarrow 1.2$). 
-                This pronounced narrowing <em>offers a quantitative basis for the reduced output variance and decoding sensitivity observed in aligned models</em>, highlighting a key behavioral divergence from their base counterparts.</li>
-            </ul>
-            <p>
-                Is this reduction in BF merely a reflection of concentrated token probabilities, or does it indicate that the model is actively <em>honing in</em> on a narrower target space? To probe this, we conduct resampling experiments, requiring the model to choose an alternative to its top-ranked token at an intermediate generation step. We observe a sharp drop in accuracy, suggesting that aligned models not only concentrate probability mass but also commit to specific generative pathways early in the process. 
-                Building on these theoretical and empirical insights, we also hypothesize and empirically validate that aligned CoT models exhibit particularly low BF and reduced output variability under majority voting. 
-                This stability arises because CoT encourages long reasoning chains, shifting key information to later tokens--precisely where BF tends to be lowest. As a result, different completions often converge to similar answers, <em>making CoT a natural stabilizer in generation.</em>
-            </p>
-            <p>
-                Why does alignment tuning exert such a dominant effect on BF? Inspired by the <em>superficial alignment hypothesis</em> <d-cite key="zhou2024lima"></d-cite> and recent advances in tuning-free alignment <d-cite key="lin2023unlocking"></d-cite><d-cite key="fei2024nudging"></d-cite>, we hypothesize that base models already encode low-entropy conditional distributions, and that alignment tuning primarily steers generation toward certain stylistic tokens (e.g., "Sure"), thereby narrowing the conditional output space. To test this, we replicate nudging experiments <d-cite key="fei2024nudging"></d-cite>, over Just-Eval-Instruct <d-cite key="lin2023unlocking"></d-cite> and MMLU datasets. We employ Llama-3-70B for drafting most outputs. However, when the base model's Top-1 probability is low, we apply nudging by switching to Llama-3-8B-Instruct to generate a single word.
-                BF was computed as in prior experiments.
-            </p>
-            <p>
-                The results indicate that after nudging occurs early in the generation process -- indicating the prefix generated by the nudging model is of low probability. These observations collectively support our hypothesis. Considering that nudging not only reduces BF but also improves aligned model performance on these tasks <d-cite key="fei2024nudging"></d-cite>, our results highlight the dual effect of alignment training: reducing BF while preserving or even enhancing task performance.
+                To generalize, we can compute the <em>expected conditional entropy</em> over the distribution of prefix sequences $Y_{1:t-1}$: $\tilde{H}\left(Y_t | [x, Y_{1:t-1}]; \theta \right)=\mathbb{E}_{y_{1:t-1}}\tilde{H}\left(Y_t | [x, y_{1:t-1}]; \theta \right)$.
             </p>
         </div>
-    </section>
-
-    <section id="preliminary">
-        <h2>Background</h2>
-        <h3>Autoregressive Language Models</h3>
-        <p>
-            LLMs are typically trained to predict the next token and the probability of output $P\left(y_{1:N} | x; \theta \right)$ can be decomposed as: $P\left(y_{1:N} | x; \theta \right)=\prod_{t=1}^{N}P\left(y_t | [x, y_{1:t-1}]; \theta \right)$,
-            where $y_{1:t-1}$ is the output up to position $t-1$, $\theta$ is the model parameter, and $x$ is the prompt.
-            Each output sample is generated via token-by-token sampling, and the generation of multiple samples naturally forms a search tree <d-cite key="yao2023tree"></d-cite><d-cite key="hao2023reasoning"></d-cite><d-cite key="wan2024alphazero"></d-cite>.
-            Modern LLMs would go through multiple training stages. 
-            In this paper, we would use <em>base models</em> to refer to the models trained without <em>alignment tuning</em> techniques <d-cite key="touvron2023llama"></d-cite>, including instruction tuning and Reinforcement Learning from Human Feedback (RLHF) <d-cite key="ouyang2022training"></d-cite><d-cite key="bai2022training"></d-cite> (e.g., "Llama-2-13B" <d-cite key="touvron2023llama"></d-cite>) and <em>aligned models</em> to refer to models undergoing these additional fine-tuning stages (e.g., "Llama-2-13B-Chat").
-        </p>
-        
-        <h3>Decoding Methods as Truncated Sampling</h3>
-        <p>
-            Though LLMs are trained with a large vocabulary size $|V|$, in many cases, the desired tokens often concentrate on a much smaller set of tokens under distribution $P(y_{t} | x, y_{1:t-1}; \theta)$. Common decoding methods <d-cite key="Holtzman2020The"></d-cite><d-cite key="hewitt2022truncation"></d-cite>
-            utilize this observation and propose various heuristics to truncate vocabulary $V$ as $V_t$ at each step $t$. The next token is then sampled from the renormalized distribution $\tilde{P}\left(y_t | [x, y_{1:t-1}]; \theta \right)$:
-        </p>
-        <div class="equation-container">
-            <h4>$$\tilde{P}\left(y_t | [x, y_{1:t-1}]; \theta \right) = \begin{cases}
-                 \frac{P(y_{t} | x, y_{1:t-1}; \theta)}{\sum_{y_{t} \in V_t} P(y_{t} | x, y_{1:t-1}; \theta) } & y_{t} \in V_t \\
-                 0 & \text{otherwise}
-            \end{cases}$$</h4>
-        </div>
-        
-        <h3>Token-wise Conditional Entropy</h3>
-        <p>
-            Since tokens are sampled from the truncated distribution $\tilde{P}$, we use $\tilde{P}$ to compute the token-level conditional entropy $\tilde{H}$ for a given prefix instance $y_{1:t-1}$:
-        </p>
-        <div class="equation-container">
-            <h4>$$\tilde{H}\left(Y_t | [x, y_{1:t-1}]; \theta \right) 
-            =-\sum_{y_t} \tilde{P}\left(y_t | [x, y_{1:t-1}]; \theta \right) \log \tilde{P}\left(y_t | [x, y_{1:t-1}]; \theta \right)$$</h4>
-        </div>
-        <p>
-            To generalize, we can compute the <em>expected conditional entropy</em> over the distribution of prefix sequences $Y_{1:t-1}$: $\tilde{H}\left(Y_t | [x, Y_{1:t-1}]; \theta \right)=\mathbb{E}_{y_{1:t-1}}\tilde{H}\left(Y_t | [x, y_{1:t-1}]; \theta \right)$.
-        </p>
     </section>
 
     <section id="sampling-efforts">
@@ -544,11 +517,13 @@
             Intuitively, greater prompt specificity (larger $C$) reduces BF by narrowing the model's output space through more informative context. However, our experimental results reveal task-varied effects. For the Cognac task, greater prompt complexity can <em>increase</em> BF--potentially due to the cognitive burden of processing negation or complex linguistic structures. In contrast, for tasks like News Generation, higher $C$ generally leads to lower BF, consistent with the expected narrowing of output diversity.
         </p>
 
+    </secton>
+
+    <section id="application-variance">
         <h2>Application: Variance Reduction and Risks of Mid-Generation Forking</h2>
         <p>
             Building on our findings that BF declines over the generation process and is lower in aligned models, we derive a practical implication: aligned CoT models, by starting with low BF and delaying decisive tokens, shrink the output space more aggressively and produce fewer high-probability variants. To test this, we evaluate output variability on MMLU-STEM using 200 samples per model, measuring the standard deviation of Majority@K accuracy for $K = 1, 3, 8, 16$ under temperature $T=0.6$ and truncation threshold $p=0.9$.
         </p>
-
         <div class="table-container">
             <table>
                 <thead>
@@ -621,11 +596,9 @@
             </table>
             <p class="table-caption"><strong>Table 2:</strong> Majority Voting@K standard deviation on MMLU-STEM with 200 samples. We compute the standard deviation over 100 bootstrapping trials, each using 64 samples per instance. We set $T=0.6, p=0.9$ to match standard benchmarking settings. Lower temperature concentrates probability mass on fewer tokens, reducing BF and making direct comparisons more difficult. Still, BF remains a strong predictor of standard deviation.</p>
         </div>
-
         <p>
             As shown in Table 2, among models with similar capacity, those with lower BF--especially the aligned CoT model--exhibit markedly lower variance. This confirms that BF is a reliable predictor of sampling stability.
         </p>
-
         <d-figure>
             <figure>
                 <div class="img-container lazy-load" data-src="static/visualization/bon_from_middle_demo.pdf">

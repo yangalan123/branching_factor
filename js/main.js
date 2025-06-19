@@ -319,9 +319,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize collapsible sections
     initializeCollapsibleSections();
-    
-    // Add section controls
-    addSectionControls();
 });
 
 // Function to render standalone PDFs (not in carousels)
@@ -852,93 +849,6 @@ function toggleSection(section) {
     
     // Save state to localStorage
     saveSectionStates();
-}
-
-function addSectionControls() {
-    const controlsDiv = document.createElement('div');
-    controlsDiv.className = 'section-controls';
-    controlsDiv.innerHTML = `
-        <h4>Section Controls</h4>
-        <button class="section-toggle" data-action="expand-all">Expand All</button>
-        <button class="section-toggle" data-action="collapse-all">Collapse All</button>
-        <hr style="margin: 0.5em 0; border: none; border-top: 1px solid #ddd;">
-    `;
-    
-    // Add individual section toggles
-    const sections = document.querySelectorAll('.collapsible-section');
-    sections.forEach(section => {
-        const title = section.querySelector('.collapsible-header h2')?.textContent || 'Section';
-        const sectionId = section.id || 'section-' + Math.random().toString(36).substr(2, 9);
-        
-        const button = document.createElement('button');
-        button.className = 'section-toggle';
-        button.textContent = title;
-        button.setAttribute('data-section-id', sectionId);
-        button.addEventListener('click', function() {
-            toggleSection(section);
-            updateToggleButtonStates();
-        });
-        
-        controlsDiv.appendChild(button);
-    });
-    
-    // Add event listeners for expand/collapse all
-    controlsDiv.querySelector('[data-action="expand-all"]').addEventListener('click', expandAllSections);
-    controlsDiv.querySelector('[data-action="collapse-all"]').addEventListener('click', collapseAllSections);
-    
-    // Insert controls after the header
-    const headerContainer = document.querySelector('.header-container');
-    if (headerContainer) {
-        headerContainer.parentNode.insertBefore(controlsDiv, headerContainer.nextSibling);
-    }
-    
-    // Load saved states and update button states
-    loadSectionStates();
-    updateToggleButtonStates();
-}
-
-function expandAllSections() {
-    const sections = document.querySelectorAll('.collapsible-section');
-    sections.forEach(section => {
-        const content = section.querySelector('.collapsible-content');
-        const toggle = section.querySelector('.collapsible-toggle');
-        
-        content.classList.remove('collapsed');
-        if (toggle) toggle.classList.remove('collapsed');
-        section.setAttribute('data-collapsed', 'false');
-    });
-    saveSectionStates();
-    updateToggleButtonStates();
-}
-
-function collapseAllSections() {
-    const sections = document.querySelectorAll('.collapsible-section');
-    sections.forEach(section => {
-        const content = section.querySelector('.collapsible-content');
-        const toggle = section.querySelector('.collapsible-toggle');
-        
-        content.classList.add('collapsed');
-        if (toggle) toggle.classList.add('collapsed');
-        section.setAttribute('data-collapsed', 'true');
-    });
-    saveSectionStates();
-    updateToggleButtonStates();
-}
-
-function updateToggleButtonStates() {
-    const sections = document.querySelectorAll('.collapsible-section');
-    const toggleButtons = document.querySelectorAll('.section-toggle[data-section-id]');
-    
-    toggleButtons.forEach(button => {
-        const sectionId = button.getAttribute('data-section-id');
-        const section = document.getElementById(sectionId) || 
-                       document.querySelector(`[data-section-id="${sectionId}"]`);
-        
-        if (section) {
-            const isCollapsed = section.getAttribute('data-collapsed') === 'true';
-            button.classList.toggle('active', !isCollapsed);
-        }
-    });
 }
 
 function saveSectionStates() {

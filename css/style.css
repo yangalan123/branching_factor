@@ -1801,54 +1801,14 @@ d-article .affiliation-link:hover {
     padding-bottom: 0;
 }
 
-/* Section controls */
-.section-controls {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1em;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    z-index: 1000;
-    max-width: 300px;
-}
-
-.section-controls h4 {
-    margin: 0 0 0.5em 0;
-    font-size: 0.9em;
-    color: #666;
-}
-
-.section-toggle {
-    display: block;
-    width: 100%;
-    padding: 0.5em;
-    margin: 0.2em 0;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85em;
-    transition: all 0.2s ease;
-}
-
-.section-toggle:hover {
-    background: #e9ecef;
-}
-
-.section-toggle.active {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .section-controls {
-        position: static;
-        margin: 1em 0;
-        max-width: none;
-    }
+.highlight-quote {
+    font-style: italic;
+    background: #f5f7fa;
+    border-left: 4px solid #007bff;
+    margin: 2em 0;
+    padding: 1.2em 2em;
+    color: #333;
+    border-radius: 6px;
+    font-size: 1.08em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }

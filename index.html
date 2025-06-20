@@ -62,8 +62,8 @@
         <h1>How Alignment Shrinks the Generative Horizon</h1>
         <h2>Understanding LLM Output Diversity Through Probability Concentration</h2>
         <div class="button-container">
-            <a href="https://arxiv.org/abs/2502.16810" class="button">Paper</a>
-            <a href="#introduction" class="button">Codes</a>
+            <a href="#" class="button">Paper</a>
+            <a href="https://github.com/yangalan123/LLMBranchingFactor" class="button">Codes</a>
             <a href="#results" class="button">Video</a>
             <a href="#results" class="button">Results</a>
         </div>
@@ -84,8 +84,8 @@
             <!-- <div><a href="#introduction">Introduction</a></div> -->
             <!-- <div><a href="#preliminary">Background</a></div> -->
             <div><a href="#sampling-efforts">Case Study: Is Decoding Methods Still Crucial for Aligned Models?</a></div>
-            <div><a href="#bf-formulation">How to Compute BF?</a></div>
-            <div><a href="#bf-measuring">What impacts BF?</a></div>
+            <div><a href="#bf-formulation">Measuring BF</a></div>
+            <div><a href="#bf-measuring">What Impacts BF?</a></div>
             <div><a href="#application-variance">Application: Variance Reduction for Reasoning</a></div>
             <div><a href="#bf-nudging">How does Alignment Tuning Impact BF?</a></div>
             <!-- <div><a href="#related-works">Related Works</a></div>
@@ -317,6 +317,10 @@
                 This theorem is equivalent to the statement: for sufficiently large $N$, the probability of any length-$N$ high-probability output $y_{1:N}$ under $\tilde{P}$ can be approximated as $\exp\left(-N\bar{H}(Y_{1:N} | x; \theta)\right)$, rendering log-probability asymptotically ineffective for distinguishing among them.
             </p>
 
+
+            <p>
+                As an empirical demonstration, we plot the standard deviation of the average negative log-likelihood of Llama-3-8B-Instruct over multiple datasets in Figure 2, where we can see that with the increased output length, the difference between length-averaged entropy and negative log-likelihood (NLL) is reduced, and the standard deviation of average NLL also quickly reduces within the first 50 output tokens.
+            </p>
             <!-- Group 2a and 2b together -->
             <div class="figure-group" data-group-name="AEP Verification (NLL vs Entropy)">
                 <d-figure>
@@ -357,10 +361,6 @@
             </div>
 
             <p>
-                As an empirical demonstration, we plot the standard deviation of the average negative log-likelihood of Llama-3-8B-Instruct over multiple datasets in Figure 2, where we can see that with the increased output length, the difference between length-averaged entropy and negative log-likelihood (NLL) is reduced, and the standard deviation of average NLL also quickly reduces within the first 50 output tokens.
-            </p>
-
-            <p>
                 Therefore, for long sequences, we can estimate BF using the NLL of sampled sequences as:
             </p>
             <div class="equation-container">
@@ -390,6 +390,16 @@
                 We consider a variety of tasks covering common application scenarios of LLM generation, including reasoning and open-ended generation: <strong>MMLU</strong> <d-cite key="hendrycks2021measuring"></d-cite> (Reasoning), <strong>Cognac</strong> <d-cite key="chen2022cognac"></d-cite> (Controlled Generation), <strong>BBCLatestNews</strong> <d-cite key="li2024latesteval"></d-cite> (News Generation), and <strong>Creative Story Generation</strong> <d-cite key="chakrabarty2024art"></d-cite> (Creative Generation). To test subjective randomness bias <d-cite key="bigelowsubjective"></d-cite>, we also prepare a synthetic task <strong>Random Strings</strong> where the prompt is generated via randomly sampled characters.
             </p>
 
+
+            <h3>Impact Factors (IFs)</h3>
+            <p>
+                We consider modulating these factors that may impact BF computations: <strong>Prompt Complexity</strong> ($C$), <strong>Alignment Tuning</strong> $(AT \in \{\text{Instruct},\text{Base}\})$, <strong>Model Size</strong> $(S \in \{8\text{B}/13\text{B},70\text{B}\})$, and <strong>Model Generation</strong> $(G \in \{2,3\})$. $C$ controls the informativeness of the input prompt $x$ (e.g., the number of banned words in Cognac, the number of in-context samples in MMLU). Intuitively, providing more information in $x$ should make the model more confident in its outputs, resulting in a lower BF. $AT, S, G$ represent model-wise variations to explore how different configurations of $\theta$ affect $B(X; \theta)$.
+            </p>
+
+            <h3>BF Dynamic in Generation Process</h3>
+            <p>
+                Both BF and the output length $N$ are functions of the output $Y$, and BF computation relies on $N$. To avoid confounding effects, we first analyze how BF varies with $N$ before intervening IFs. We demonstrate BF trajectories over different output positions by running Llama-3-70B and Llama-3-70B-Instruct on three representative tasks. Specifically, we compute BF over every five output tokens, conditioning on the prompt and all previously generated output tokens.
+            </p>
             <div class="figure-group" data-group-name="BF Dynamics Across Tasks">
                 <d-figure>
                     <figure>
@@ -445,16 +455,6 @@
                     </figure>
                 </d-figure>
             </div>
-
-            <h3>Impact Factors (IFs)</h3>
-            <p>
-                We consider modulating these factors that may impact BF computations: <strong>Prompt Complexity</strong> ($C$), <strong>Alignment Tuning</strong> $(AT \in \{\text{Instruct},\text{Base}\})$, <strong>Model Size</strong> $(S \in \{8\text{B}/13\text{B},70\text{B}\})$, and <strong>Model Generation</strong> $(G \in \{2,3\})$. $C$ controls the informativeness of the input prompt $x$ (e.g., the number of banned words in Cognac, the number of in-context samples in MMLU). Intuitively, providing more information in $x$ should make the model more confident in its outputs, resulting in a lower BF. $AT, S, G$ represent model-wise variations to explore how different configurations of $\theta$ affect $B(X; \theta)$.
-            </p>
-
-            <h3>BF Dynamic in Generation Process</h3>
-            <p>
-                Both BF and the output length $N$ are functions of the output $Y$, and BF computation relies on $N$. To avoid confounding effects, we first analyze how BF varies with $N$ before intervening IFs. We demonstrate BF trajectories over different output positions by running Llama-3-70B and Llama-3-70B-Instruct on three representative tasks. Specifically, we compute BF over every five output tokens, conditioning on the prompt and all previously generated output tokens.
-            </p>
             <p>
                 As we can see, first, <strong>the average BF for the base model</strong> (~$\approx 12$) <strong>is roughly ten times higher than the aligned model</strong> ($\approx 1.2$). Therefore, there are actually very few candidate next-token to be truncated in decoding for the aligned models. This explains why the decoding method would assert weaker effects for aligned models. Also, in most cases, <strong>BF would often drop smoothly as more output tokens are generated</strong>. Under the same task, when $C>0$, different $C$ mainly controls the starting point and the rate of decreasing, while in the end, they would converge to roughly the same point. When almost zero knowledge is provided ($C=0$), the output will end much earlier compared to $C > 0$ cases. These findings also provide support that the future token generation is gradually becoming predictable and the model may have a certain generation plan to follow, resonating with recent observation in interpretability <d-cite key="pal2023future"></d-cite><d-cite key="wu2024language"></d-cite><d-cite key="li2024predicting"></d-cite> and inference acceleration <d-cite key="cai2024medusa"></d-cite><d-cite key="welleck2024from"></d-cite>.
             </p>
@@ -517,6 +517,43 @@
             <p>
                 Intuitively, greater prompt specificity (larger $C$) reduces BF by narrowing the model's output space through more informative context. However, our experimental results reveal task-varied effects. For the Cognac task, greater prompt complexity can <em>increase</em> BF--potentially due to the cognitive burden of processing negation or complex linguistic structures. In contrast, for tasks like News Generation, higher $C$ generally leads to lower BF, consistent with the expected narrowing of output diversity.
             </p>
+            <div class="figure-group appendix-figure" data-group-name="Task-wise BF Evaluation">
+                <d-figure>
+                    <figure>
+                        <div class="img-container lazy-load" data-src="static/visualization/cognac/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">
+                            <div class="loading-spinner">Loading figure...</div>
+                        </div>
+                        <figcaption>Figure A.3a: Cognac - BF vs Prompt Complexity</figcaption>
+                    </figure>
+                </d-figure>
+                
+                <d-figure>
+                    <figure>
+                        <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_1/model_wise_comparison_plot_ebf_perplexity.pdf">
+                            <div class="loading-spinner">Loading figure...</div>
+                        </div>
+                        <figcaption>Figure A.3b: Creative Story Generation - BF vs Prompt Complexity</figcaption>
+                    </figure>
+                </d-figure>
+                
+                <d-figure>
+                    <figure>
+                        <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">
+                            <div class="loading-spinner">Loading figure...</div>
+                        </div>
+                        <figcaption>Figure A.3c: Random Strings - BF vs Prompt Complexity</figcaption>
+                    </figure>
+                </d-figure>
+                
+                <d-figure>
+                    <figure>
+                        <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">
+                            <div class="loading-spinner">Loading figure...</div>
+                        </div>
+                        <figcaption>Figure A.3d: BBC News - BF vs Prompt Complexity</figcaption>
+                    </figure>
+                </d-figure>
+            </div>
 
         </section>
 
@@ -721,505 +758,6 @@
 </d-article>
 
 <script src="js/contents_bar.js"></script>
-
-<section id="appendix">
-    <h2>Appendix</h2>
-    
-    <section id="appendix-case-study">
-        <h3>Case Study Implementation Details</h3>
-        <p>
-            We use the scripts in Qwen-2.5-Math <d-cite key="yang2024qwen2"></d-cite> for standard reasoning benchmarks. We sample 200 examples from MMLU-STEM and compute the performance numbers under 64 trials and report the average performance.
-        </p>
-        
-        <d-figure class="appendix-figure">
-            <figure>
-                <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B_perplexity.pdf">
-                    <div class="loading-spinner">Loading figure...</div>
-                </div>
-                <figcaption>Figure A.1: BF Output Dynamic for Llama-2-families. For better visualization, we compute the exponential moving averaged values of perplexity with the smoothing factor set as 0.1.</figcaption>
-            </figure>
-        </d-figure>
-
-        <div class="figure-group appendix-figure" data-group-name="Llama-2 Family BF Dynamics">
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1a: Creative Story - Llama-2-13B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1b: Random Strings - Llama-2-13B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1c: BBC News - Llama-2-13B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/mmlu/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1d: MMLU - Llama-2-13B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B-chat_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1e: Creative Story - Llama-2-13B-Chat</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B-chat_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1f: Random Strings - Llama-2-13B-Chat</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B-chat_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1g: BBC News - Llama-2-13B-Chat</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/mmlu/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-13B-chat_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1h: MMLU - Llama-2-13B-Chat</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1i: Creative Story - Llama-2-70B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1j: Random Strings - Llama-2-70B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1k: BBC News - Llama-2-70B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/mmlu/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1l: MMLU - Llama-2-70B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-70B-chat_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1m: Creative Story - Llama-2-70B-Chat</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-70B-chat_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1n: Random Strings - Llama-2-70B-Chat</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-70B-chat_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1o: BBC News - Llama-2-70B-Chat</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/mmlu/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-2-70B-chat_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.1p: MMLU - Llama-2-70B-Chat</figcaption>
-                </figure>
-            </d-figure>
-        </div>
-    </section>
-
-    <section id="appendix-dataset-details">
-        <h3>Dataset-Specific Processing</h3>
-        <p>
-            For all datasets we used in the paper, we carefully controlled whether the prompt length and expected output length would exceed the model's maximum length.
-        </p>
-        
-        <h4>MMLU</h4>
-        <p>
-            <d-cite key="hendrycks2021measuring"></d-cite> is a widely-used multiple-choice reasoning question. Unless otherwise explained, we use the full test set of MMLU to avoid potential contamination, following benchmarking settings reported in most LLM technical reports <d-cite key="touvron2023llama"></d-cite><d-cite key="dubey2024llama"></d-cite><d-cite key="guo2025deepseek"></d-cite>. We formulate prompt complexity $C$ as the number of in-context samples. For example, $C=1$ means we only add one in-context sample. For prompting setup and postprocessing details, we follow the standard implementation in Qwen-2.5-Math <d-cite key="yang2024qwen2"></d-cite>.
-        </p>
-        
-        <h4>Cognac</h4>
-        <p>
-            <d-cite key="chen2022cognac"></d-cite> is a controlled generation task requiring language model <em>not</em> to generate specified banned words provided in the prompt. We use the WordNet subset <d-cite key="miller1995wordnet"></d-cite> of Cognac as this is the only released setting in Cognac paper, where the topic is a root node and the constraint is defined as a subtree. We sampled 200 instances using the provided data generation codes in our experiments. To ensure most model generations ended properly in the decoding process, we relax the constraint of maximum decoded tokens $T$ from 60 to 512. We use the same prompt templates following their Github repo.
-        </p>
-        
-        <h4>Creative Story Generation</h4>
-        <p>
-            <d-cite key="chakrabarty2024art"></d-cite> provides the plots and story continuation from both machine and human. We adopt the provided 11 human-written story plots in the original dataset as the prompt. In this task, we set the maximum token $T=1024$ to ensure the continued story written by LLM can have a proper ending. We formulate prompt complexity $C$ as providing $C \times 25$ words in the plot.
-        </p>
-        
-        <h4>Random Strings</h4>
-        <p>
-            Similar to <d-cite key="bigelowsubjective"></d-cite>, we sample 200 random strings with length $L\sim U(256, 512)$ from the tokenizer vocabulary as the prompt. Prompt complexity $C$ is formulated by providing $C \times 15$ tokens in the prompt, ensuring each article contains at least 100 tokens.
-        </p>
-        
-        <h4>BBCLatestNews</h4>
-        <p>
-            <d-cite key="li2024latesteval"></d-cite> is a news collection dataset aims at collecting news that is beyond the time cut for training LLMs. Unlike creative story plots, news articles are typically more structured and organized, although headlines can still be surprising. We select news articles from January to July 2024 to minimize data contamination, as the Llama models have a knowledge cut-off in late 2023. We formulate prompt complexity $C$ as providing $C \times 15$ words in the plot.
-        </p>
-        
-        <d-figure class="appendix-figure">
-            <figure>
-                <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B_perplexity.pdf">
-                    <div class="loading-spinner">Loading figure...</div>
-                </div>
-                <figcaption>Figure A.2: BF Output Dynamic for Llama-3-families. For better visualization, we compute the exponential moving averaged values of perplexity with the smoothing factor set as 0.1.</figcaption>
-            </figure>
-        </d-figure>
-
-        <div class="figure-group appendix-figure" data-group-name="Llama-3 Family BF Dynamics">
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2a: Creative Story - Llama-3-8B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2b: Random Strings - Llama-3-8B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2c: BBC News - Llama-3-8B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/mmlu/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2d: MMLU - Llama-3-8B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2e: Creative Story - Llama-3-70B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2f: Random Strings - Llama-3-70B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2g: BBC News - Llama-3-70B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/mmlu/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2h: MMLU - Llama-3-70B Base</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B-Instruct_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2i: Creative Story - Llama-3-8B-Instruct</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B-Instruct_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2j: Random Strings - Llama-3-8B-Instruct</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B-Instruct_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2k: BBC News - Llama-3-8B-Instruct</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/mmlu/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-8B-Instruct_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2l: MMLU - Llama-3-8B-Instruct</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-70B-Instruct_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2m: Creative Story - Llama-3-70B-Instruct</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-70B-Instruct_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2n: Random Strings - Llama-3-70B-Instruct</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-70B-Instruct_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2o: BBC News - Llama-3-70B-Instruct</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/mmlu/visualization_promptwise_0_smoothing_0.1/piecewise_ebf_Llama-3-70B-Instruct_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.2p: MMLU - Llama-3-70B-Instruct</figcaption>
-                </figure>
-            </d-figure>
-        </div>
-    </section>
-
-    <section id="appendix-full-output-bf">
-        <h3>Full BF Output Dynamics Investigation</h3>
-        <p>
-            For better visualization, we would submit all full-size figures for task-wise and model-wise BF output dynamics in zipped supplementary materials. Here we only present full task-wise (except Cognac, which would be hard to read if we put it here) and model-wise BF output dynamic for Llama-2 in Figure A.1 and Llama-3 in Figure A.2. We can observe the trends as in the main text:
-        </p>
-        <ol>
-            <li><strong>The average BF for the base model</strong> (~$\approx 12$) <strong>is roughly ten times higher than the aligned model</strong> ($\approx 1.2$).</li>
-            <li><strong>BF would often drop smoothly as more output tokens are generated</strong>.</li>
-        </ol>
-    </section>
-
-    <section id="appendix-full-taskwise-bf">
-        <h3>Full Task-wise BF Evaluation on Different Prompt Complexity</h3>
-        <p>
-            The full task-wise BF evaluation results over different prompt complexity can be found in Figure A.3. Here we can see that prompt complexity modulates BF in highly non-consistent ways across models and tasks, and there are no clear monotonic patterns, contradicting the intuition that with more context given, the model should have more confidence in what to generate.
-        </p>
-        
-        <d-figure class="appendix-figure">
-            <figure>
-                <div class="img-container lazy-load" data-src="static/visualization/cognac/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">
-                    <div class="loading-spinner">Loading figure...</div>
-                </div>
-                <figcaption>Figure A.3: BF changes with prompt complexity ($C$) for Different Tasks. We can see prompt complexity affects BF in a task-varied way.</figcaption>
-            </figure>
-        </d-figure>
-
-        <div class="figure-group appendix-figure" data-group-name="Task-wise BF Evaluation">
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/cognac/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.3a: Cognac - BF vs Prompt Complexity</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/storytelling/visualization_promptwise_0_smoothing_1/model_wise_comparison_plot_ebf_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.3b: Creative Story Generation - BF vs Prompt Complexity</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/random_strings/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.3c: Random Strings - BF vs Prompt Complexity</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/bbcnews/visualization_promptwise_0_smoothing_1/model_wise_comparison_ebf_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.3d: BBC News - BF vs Prompt Complexity</figcaption>
-                </figure>
-            </d-figure>
-        </div>
-    </section>
-
-    <section id="appendix-aep-proof">
-        <h3>Proof of AEP and other corollaries</h3>
-        <h4>Proof of AEP</h4>
-        <p>
-            The proof below is a simplified version of the proof in <d-cite key="mudireddy2024slaves"></d-cite>. For more formal measure-theoretical proof, we refer readers to their original papers for more details. We present the simplified proof here mostly for completeness of the paper and to fix some minor issues when deriving bounds.
-        </p>
-        <p>
-            The key observation here is that under current computation architecture, the probability implemented by transformers are log-precision <d-cite key="merrill2023parallelism"></d-cite>, and thus $|\log {P}\left(y_{1: N} | x; \theta \right)|$ is bounded (e.g., $|\log {P}\left(y_{1: N} | x; \theta \right)| \leq M$. For the truncated probability $\tilde{P}\left(y_{1: N} | x; \theta \right)$, we can essentially only consider the non-zero probability over truncated vocabulary and the same thing holds. Depending on the quantization scheme implemented, examples of $M$ include $32, 64$, etc.
-        </p>
-        <p>
-            Then, note that ${\bar{H}\left(Y_{1: N} | x; \theta \right)}$ is actually the first moment of variable $\log {P}\left(y_{1: N} | x; \theta \right)$ divided by $N$, if we can further show that the second moment of $\log {P}\left(y_{1: N} | x; \theta \right)$ is bounded by some $G(N)$ which only increases linearly in $N$, by Chebyshev Inequality <d-cite key="cohen2015markov"></d-cite>, we can prove:
-        </p>
-        <div class="equation-container">
-            <h4>$$P\left( \left\lvert -\frac{1}{N}\log \tilde{P}\left(y_{1: N} | x; \theta \right) - {\bar{H}\left(Y_{1: N} | x; \theta \right)}\right\rvert \geq \epsilon \right) \leq \frac{\text{Var}(\log {P}\left(y_{1: N} | x; \theta \right))}{N^2\epsilon^2} \leq \frac{G(N)}{N^2\epsilon^2}$$</h4>
-        </div>
-        <p>
-            Then taking $N\rightarrow \infty$ on both sides, we will see:
-        </p>
-        <div class="equation-container">
-            <h4>$$P\left( \left\lvert -\frac{1}{N}\log \tilde{P}\left(y_{1: N} | x; \theta \right) - {\bar{H}\left(Y_{1: N} | x; \theta \right)}\right\rvert \geq \epsilon \right) \rightarrow 0$$</h4>
-        </div>
-        <p>
-            Equivalently:
-        </p>
-        <div class="equation-container">
-            <h4>$$\lim_{N \rightarrow \infty}{P\left( \left\lvert -\frac{1}{N}\log \tilde{P}\left(y_{1: N} | x; \theta \right) - {\bar{H}\left(Y_{1: N} | x; \theta \right)}\right\rvert < \epsilon \right) } = 1$$</h4>
-        </div>
-        <p>
-            and we can complete the proof.
-        </p>
-        <p>
-            Now let's prove a specific choice of $G(N)=NM^2$ upper-bounds $\text{Var}\left[\log{P}\left(y_{1: N} | x; \theta \right)\right]$.
-        </p>
-        <p>
-            First, we note that:
-        </p>
-        <div class="equation-container">
-            <h4>$$\log{P}\left(y_{1: N} | x; \theta \right) = \sum_{t=1}^N \log{P}\left(y_{t} | [x; y_{1:t-1}]; \theta \right)$$</h4>
-        </div>
-        <div class="equation-container">
-            <h4>$${H}\left(Y_{1: N} | x; \theta \right) = \sum_{t=1}^N {H}\left(Y_{t} | [x; Y_{1:t-1}]; \theta \right) = \sum_{t=1}^N \mathbb{E}_{y_{1:t-1}} \left[H\left(Y_{t} | [x, y_{1:t-1}]; \theta \right)\right]$$</h4>
-        </div>
-        <p>
-            Following <d-cite key="mudireddy2024slaves"></d-cite>, we use induction on $N$ to prove $\text{Var}\left[\log{P}\left(y_{1: N} | x; \theta \right)\right]\leq NM^2$. The complete proof involves showing that the cross-product terms in the variance expansion are zero due to the law of iterated expectation, which completes the induction.
-        </p>
-    </section>
-
-    <section id="appendix-nudging">
-        <h3>Full Nudging Experiment Results</h3>
-        <p>
-            Due to space limits, we put the nudging experiment results for MMLU here. Though on MMLU, nudging does not reduce BF that quickly as over Just-Eval-Instruct, it does bring down BF of base models significantly, which verifies our hypothesis in the main text.
-        </p>
-        
-        <div class="figure-group">
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/nudging_bf/nudging_just_eval_instruct_piecewise_ebf_Llama-3-70B_perplexity.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.4: Output Perplexity Dynamics in Nudging Experiments.</figcaption>
-                </figure>
-            </d-figure>
-            
-            <d-figure>
-                <figure>
-                    <div class="img-container lazy-load" data-src="static/visualization/nudging_bf/just_eval_instruct_model_frequency_histogram.pdf">
-                        <div class="loading-spinner">Loading figure...</div>
-                    </div>
-                    <figcaption>Figure A.5: Nudging Ratio Histogram.</figcaption>
-                </figure>
-            </d-figure>
-        </div>
-    </section>
-
-    <section id="appendix-bf-and-id">
-        <h3>BF and Information Density</h3>
-        <p>
-            Our BF measure can also be interpreted as capturing the information density that LLMs target to facilitate efficient communication <d-cite key="genzel2002entropy"></d-cite><d-cite key="jaeger2006speakers"></d-cite><d-cite key="levy2008expectation"></d-cite><d-cite key="mahowald2013info"></d-cite><d-cite key="meister2021revisiting"></d-cite><d-cite key="verma2023revisiting"></d-cite>. Prior work has leveraged both token-level log-probabilities and entropy rates ($\bar{H}$) as proxies for information density in human and machine communication. In our main theorem, we formalize the connection between these views, showing that BF--defined as the exponentiated entropy rate--aligns naturally with this theoretical framework. Unlike prior studies focused primarily on linguistic theory or cognitive science, our work operationalizes this principle at scale across modern LLMs, linking information density to alignment training, decoding dynamics, and output variability in a unified analysis.
-        </p>
-    </section>
-</section>
 
 </body>
 </html>

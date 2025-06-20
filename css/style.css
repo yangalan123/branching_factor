@@ -208,21 +208,25 @@ html { scroll-behavior: smooth; }
 }
 
 d-article {
-  contain: none;
+  display: grid;
+  grid-template-columns: 300px 1fr; /* Sidebar 260px, main text takes the rest */
+  gap: 2em;
+  align-items: start;
+  /* DO NOT set overflow here! */
 }
 
 d-article d-contents {
-  max-width: 100%; /* Or the maximum width you want it to have */
-  box-sizing: border-box; /* Include padding in the width calculation */
+  grid-column: 1;
+  position: sticky;
+  top: 0;
   align-self: start;
-  grid-column: 1 / 4;
-  grid-row: auto / span 4;
-  justify-self: end;
-  margin-top: 5em;
-  padding-right: 3em;
-  padding-left: 2em;
+  height: 100vh;         /* Optional: makes sidebar full height */
+  overflow-y: auto;      /* Optional: allows sidebar to scroll if too tall */
+  box-sizing: border-box;
   border-right: 1px solid rgba(0, 0, 0, 0.1);
+  background: white;
   z-index: 1000;
+  padding-left: 2em;
 }
 
 
@@ -1811,4 +1815,26 @@ d-article .affiliation-link:hover {
     border-radius: 6px;
     font-size: 1.08em;
     box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+@media (max-width: 900px) {
+  d-article {
+    display: block;
+  }
+  d-article d-contents {
+    position: static;
+    height: auto;
+    overflow: visible;
+    border-right: none;
+    padding-left: 0;
+    margin-bottom: 2em;
+  }
+}
+/* Main content wrapper styling */
+d-article .main-content {
+    grid-column: 2;
+    max-width: 950px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }

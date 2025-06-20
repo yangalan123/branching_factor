@@ -1,12 +1,5 @@
-var dContents = document.querySelector('d-contents');
-var dArticle = document.querySelector('d-article');
-
-console.log('Contents bar script loaded');
-console.log('dContents element:', dContents);
-console.log('dArticle element:', dArticle);
-console.log('Window width:', window.innerWidth);
-
 // Sticky Sidebar Implementation
+var dContents = null;
 var stickySidebar = null;
 var originalOffsetTop = 0;
 var resizeTimeout = null;
@@ -65,13 +58,11 @@ function onScroll() {
         // Check if we should show the sticky sidebar
         if (scrollPosition >= safeThreshold && originalOffsetTop > 0) {
             if (stickySidebar.style.display !== 'block') {
-                console.log('Showing sticky sidebar at scroll position:', scrollPosition, 'threshold:', safeThreshold);
                 stickySidebar.style.display = 'block';
                 dContents.style.visibility = 'hidden';
             }
         } else {
             if (stickySidebar.style.display !== 'none') {
-                console.log('Hiding sticky sidebar, showing original at scroll position:', scrollPosition, 'threshold:', safeThreshold);
                 stickySidebar.style.display = 'none';
                 dContents.style.visibility = 'visible';
             }
@@ -95,8 +86,6 @@ function onScroll() {
 
 // Function to handle window resize
 function onResize() {
-    console.log('Window resized to:', window.innerWidth);
-    
     if (window.innerWidth <= 1000) {
         // On mobile, remove sticky sidebar and show original
         if (stickySidebar) {
@@ -116,8 +105,6 @@ function onResize() {
 
 // Initialize sticky sidebar
 function initStickySidebar() {
-    console.log('Initializing sticky sidebar...');
-    
     // Remove any existing sticky sidebar
     if (stickySidebar) {
         stickySidebar.remove();
@@ -127,7 +114,6 @@ function initStickySidebar() {
     // Get the original sidebar
     dContents = document.querySelector('d-contents');
     if (!dContents) {
-        console.log('No d-contents found');
         return;
     }
     
@@ -150,10 +136,6 @@ function initStickySidebar() {
         // Use the larger of: original sidebar position + buffer, or header height + buffer
         var safeThreshold = Math.max(originalOffsetTop + 50, headerHeight + 100);
         
-        console.log('Original sidebar offset top:', originalOffsetTop);
-        console.log('Header height:', headerHeight);
-        console.log('Safe threshold for sticky sidebar:', safeThreshold);
-        
         // Create sticky sidebar clone
         stickySidebar = dContents.cloneNode(true);
         stickySidebar.id = 'sticky-sidebar';
@@ -172,7 +154,6 @@ function initStickySidebar() {
             display: none;
             padding: 20px;
             box-sizing: border-box;
-            /* Override grid layout for single column display */
             grid-template-columns: 1fr !important;
             grid-template-rows: auto !important;
             grid-column: 1 !important;
@@ -181,7 +162,7 @@ function initStickySidebar() {
             justify-items: start !important;
         `;
         
-        // Also fix the navigation layout inside the sticky sidebar
+        // Fix the navigation layout inside the sticky sidebar
         var stickyNav = stickySidebar.querySelector('nav');
         if (stickyNav) {
             stickyNav.style.cssText = `
@@ -219,7 +200,6 @@ function initStickySidebar() {
         
         // Add to body
         document.body.appendChild(stickySidebar);
-        console.log('Sticky sidebar created and added to body');
         
         // Store the safe threshold for use in scroll handler
         stickySidebar.dataset.safeThreshold = safeThreshold;
@@ -241,8 +221,6 @@ function cleanup() {
 
 // Main initialization
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing contents bar...');
-    
     // Initialize sticky sidebar on desktop
     if (window.innerWidth > 1000) {
         initStickySidebar();
@@ -262,7 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Also initialize on window load to ensure everything is ready
 window.addEventListener('load', function() {
-    console.log('Window loaded, ensuring sticky sidebar is initialized...');
     if (window.innerWidth > 1000 && !stickySidebar) {
         initStickySidebar();
     }
@@ -270,5 +247,3 @@ window.addEventListener('load', function() {
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', cleanup);
-
-console.log('Contents bar initialization complete');
